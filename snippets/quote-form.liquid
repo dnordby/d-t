@@ -1,19 +1,104 @@
+{% assign garments = 'T-Shirt, Hoodie, Something Else' | split: ', ' %}
+{% assign quantity = '12, 24, 48, 96, 150, 300, 500, 750, 1000' | split: ', ' %}
+{% assign art_options = 'Front, Back, Sleeve' | split: ', ' %}
+{% assign art_colors = 'None, 1, 2, 3, 4, 5, 6, 7, 8' | split: ', ' %}
+{% assign sleeve_art_colors = 'None, 1, 2' | split: ', ' %}
+{% assign colors = 'Black, Navy, Royal, Kelly, Military, Mint, Orange, Brown, True Red, Cardinal, Charcoal, Heather, White, Purple, Lavender, Pink, Baby Blue, Prism, Beige' | split: ', ' %}
+
 <form class="quote-form">
-  <div class="input-group">
-    <select name="quantity">
-      <option value="12">12</option>
-      <option value="24">24</option>
-      <option value="48">48</option>
-      <option value="96">96</option>
-      <option value="150">150</option>
-      <option value="300">300</option>
-      <option value="500">500</option>
-      <option value="750">750</option>
-      <option value="1000">1000</option>
-    </select>
+  {% comment %} FIRST SECTION {% endcomment %}
+  <div class="form-section" data-step="0">  
+
+    <div class="inline-form-groups">
+      <label>What kind of garment are you looking for?</label>
+      {% for garment in garments %}
+        <div class="form-group">
+          <input type="radio" name="garment" value="{{ garment }}" id="{{ garment | replace: ' ', '_' | replace: '-', '_' | downcase }}"{% if forloop.first == true %} checked required{% endif %}>
+          <label for="{{ garment | replace: ' ', '_' | replace: '-', '_' | downcase }}" >{{ garment }}</label>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="form-group">
+      <label for="quantity">How many <span class="js-garment-type">{{ garments | first }}</span>s are you looking for?</label>
+      <select name="quantity">
+        {% for number in quantity %}
+          <option value="{{ number }}"{% if forloop.first == true%} required{% endif %}>{{ number }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="deadline">When do you need them by?</label>
+      <input type="date" name="deadline" required>
+    </div>
+
+    <div class="inline-form-groups">
+      {% for art in art_options %}
+        <div class="form-group">
+          <label for="{{ art | downcase }}_art">{{ art }} Art</label>
+          <input type="file" name="{{ art | downcase }}_art" id="{{ art | downcase }}_art" data-set="{{ art }}">
+        </div>
+      {% endfor %}
+    </div>
+    <button class="btn" data-step="1">Next</button>
+
   </div>
 
-  <div class="input-group">
-    <button type="submit" class="btn quote-form-submit">Submit</button>
+
+
+  {% comment %} SECOND SECTION {% endcomment %}
+  <div class="form-section hidden" data-step="1">
+
+    <div class="form-group">
+      <label for="front_art_colors">How many colors is the front art?</label>
+      <select name="front_art_colors" data-set="front">
+        {% for color_count in art_colors %}
+          <option value="{{ color_count }}">{{ color_count }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="back_art_colors">How many colors is the back art?</label>
+      <select name="back_art_colors" data-set="back">
+        {% for color_count in art_colors %}
+          <option value="{{ color_count }}">{{ color_count }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="sleeve_art_colors">How many colors is the sleeve art?</label>
+      <select name="sleeve_art_colors" data-set="sleeve">
+        {% for color_count in sleeve_art_colors %}
+          <option value="{{ color_count }}">{{ color_count }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="inline-form-groups">
+      <label for="colors">What color <span class="js-garment-type">{{ garments | first }}</span>s</label>
+      {% for color in colors %}
+        <div class="form-group">
+          <input type="radio" name="garment_color" value="{{ color }}" id="{{ color | replace: ' ', '_' | replace: '-', '_' | downcase }}"{% if forloop.first == true %} checked required{% endif %}>
+          <label for="{{ color | replace: ' ', '_' | replace: '-', '_' | downcase }}" >{{ color }}</label>
+        </div>
+      {% endfor %}
+    </div>
+    <button class="btn" data-step="2">Crunch the Numbers</button>
+
+  </div>
+
+
+  {% comment %} THIRD SECTION {% endcomment %}
+  <div class="form-section hidden" data-step="2">
+    <h2>$<span class="js-unit-price"></span> per <span class="js-garment-type">{{ garments | first }}</span></h2>
+    <p class="h4">Your detailed quote is ready!</p>
+    <div class="form-group">
+      <label for="email">What's your email?</label>
+      <input type="email" name="email" required>
+    </div>
+    <button type="submit" class="btn quote-form-submit">Send</button>
   </div>
 </form>

@@ -2924,36 +2924,99 @@ theme.SlideshowSection.prototype = _.assignIn(
 theme.Airtable = (function(){
   var base_url = 'https://api.airtable.com/v0/appxJdkngFawu679i/';
 
-  function unitPrice() {
-    // Params/Filters
-    var table_param = encodeURIComponent('Cost Schedule');
-    var filter_param = encodeURIComponent('{Pieces}=12');
+  // Visual replacement of garment type on radio selections
+  $('[type=radio][name=garment]').change(function(){
+    var value = $(this).val();
+    if ( value.toLowerCase() == 'something else' ) {
+      value = 'garment';
+    }
+    $('.js-garment-type').each(function(){
+      $(this).text(value);
+    });
+  });
 
-    // Build URL
-    var filter = '?filterByFormula=' + filter_param;
-    var key = '&api_key=keyR2EbtbmWAbMerQ';
-    var url = base_url + table_param + filter + key;
+  function airTableCalls(formData, fn) {
+    console.log(formData);
+    function getUnitPrice(garment_quantity) {
+      var table_param = encodeURIComponent('Cost Schedule');
+      var filter_param = encodeURIComponent('{Pieces}=' + garment_quantity);
 
-    return $.ajax({
-      url: url,
-      method: 'GET',
-      dataType: 'json'
+      var filter = '?filterByFormula=' + filter_param;
+      var key = '&api_key=keyR2EbtbmWAbMerQ';
+      var url = base_url + table_param + filter + key;
+
+      return $.ajax({
+        url: url,
+        method: 'GET',
+        dataType: 'json'
+      });
+    }
+
+    var front_art_colors = 0;
+    var back_art_colors = 0;
+    var sleeve_art_colors = 0;
+    var garment_type = formData.filter(function(object){ return object.name == 'garment'; })[0].value;
+    var garment_quantity = formData.filter(function(object){ return object.name == 'quantity'; })[0].value;
+    var garment_color = formData.filter(function(object){ return object.name == 'garment_color'; })[0].value;
+    var deadline = formData.filter(function(object){ return object.name == 'deadline'; })[0].value;
+    var email = formData.filter(function(object){ return object.name == 'email'; })[0].value;
+    if ( document.querySelector('[type=file][name=front_art]').files[0] ) {
+      var front_art = document.querySelector('[type=file][name=front_art]').files[0];
+    }
+    if ( document.querySelector('[type=file][name=back_art]').files[0] ) {
+      var back_art = document.querySelector('[type=file][name=back_art]').files[0];
+    }
+    if ( document.querySelector('[type=file][name=back_art]').files[0] ) {
+      var sleeve_art = document.querySelector('[type=file][name=back_art]').files[0];
+    }
+    if (front_art && formData.filter(function(object){ return object.name == 'front_art_colors'; }).length > 0 ) {
+      front_art_colors = parseInt(formData.filter(function(object){ return object.name == 'front_art_colors'; })[0].value);
+    }
+    if (back_art && formData.filter(function(object){ return object.name == 'back_art_colors'; }).length > 0 ) {
+      back_art_colors = parseInt(formData.filter(function(object){ return object.name == 'back_art_colors'; })[0].value);
+    }
+    if (sleeve_art && formData.filter(function(object){ return object.name == 'sleeve_art_colors'; }).length > 0 ) {
+      sleeve_art_colors = parseInt(formData.filter(function(object){ return object.name == 'sleeve_art_colors'; })[0].value);
+    }
+
+    console.log(front_art_colors);
+    console.log(front_art_colors);
+    console.log(front_art_colors);
+
+    // Initialize calls
+    var unitPrice = getUnitPrice(garment_quantity);
+
+    // Initialize queue
+    $.when(unitPrice).done(function(unitPriceData){
+      // Build return JSON
+      // fn(unitPriceData, colorCountFormatted);
+      var unitRecord = unitPriceData.records[0].fields;
+
+      if (front_art_colors != 0) {
+        var unitFrontCost = unitRecord[front_art_colors.toString() + '-color'];  
+      }
+      if (back_art_colors != 0) {
+        var unitBackCost = unitRecord[back_art_colors.toString() + '-color'];
+      }
+      if (sleeve_art_colors !=0) {
+        var unitSleeveCost = unitRecord[sleeve_art_colors.toString() + '-color'];
+      }
+      console.log(unitFrontCost);
+      console.log(unitBackCost);
+      console.log(unitSleeveCost);
     });
   }
 
-  $('.quote-form-submit').click(function(e){
+
+
+
+
+  $('.quote-form').submit(function(e){
     e.preventDefault();
-    var form = $(this).closest('.quote-form');
-    var data = $(form).serializeArray();
-    var pricePerUnit = $.when(unitPrice).done(function(unitPriceData){
-      if (fn) {
-        console.log(fn);
-        console.log(fn(unitPriceData));
-      } else {
-        console.log('PINGDOM');
-      }
+    var data = $(this).serializeArray();
+    var pricePerUnit = airTableCalls(data, function(airtableData){
+      console.log(airtableData);
     });
-    console.log(pricePerUnit);
   });
 
 
