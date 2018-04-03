@@ -1,3 +1,6 @@
+{% include 'section-wrapper-styling' %}
+
+<div class="section-wrapper section-wrapper-{{ section.id }}{% if section.settings.text_light %} section-wrapper--text-light{% endif %}">
 <div class="page-width">
   {% if section.settings.title != blank %}
     <div class="section-header text-center">
@@ -9,64 +12,76 @@
     {% for block in section.blocks %}
       {% case block.settings.width %}
         {% when '25%' %}
-          {%- assign max_height = 250 -%}
+          <style>
+            .custom__item--{{block.id}} .custom__image {
+              max-height: 250px;
+            }
+          </style>
           {%- assign block_width = 'small--one-half medium-up--one-quarter' -%}
+          {%- assign image_size = '250x250' -%}
         {% when '33%' %}
-          {%- assign max_height = 345 -%}
+          <style>
+            .custom__item--{{block.id}} .custom__image {
+              max-height: 345px;
+            }
+          </style>
           {%- assign block_width = 'small--one-half medium-up--one-third' -%}
+          {%- assign image_size = '345x345' -%}
         {% when '50%' %}
-          {%- assign max_height = 530 -%}
+          <style>
+            .custom__item--{{block.id}} .custom__image {
+              max-height: 530px;
+            }
+          </style>
           {%- assign block_width = 'small--one-half medium-up--one-half' -%}
+          {%- assign image_size = '530x530' -%}
         {% when '66%' %}
-          {%- assign max_height = 720 -%}
-          {%- assign block_width = 'two-thirds' -%}
+          <style>
+            .custom__item--{{block.id}} .custom__image {
+              max-height: 720px;
+            }
+          </style>
+          {%- assign block_width = 'medium-up--two-thirds' -%}
+          {%- assign image_size = '720x720' -%}
         {% when '75%' %}
-          {%- assign max_height = 810 -%}
-          {%- assign block_width = 'three-quarters' -%}
+          <style>
+            .custom__item--{{block.id}} .custom__image {
+              max-height: 810px;
+            }
+          </style>
+          {%- assign block_width = 'medium-up--three-quarters' -%}
+          {%- assign image_size = '810x810' -%}
         {% when '100%' %}
-          {%- assign max_height = 1090 -%}
+          <style>
+            .custom__item--{{block.id}} .custom__image {
+              max-height: 1090px;
+            }
+          </style>
           {%- assign block_width = 'one-whole' -%}
+          {%- assign image_size = '1090x1090' -%}
       {% endcase %}
-
-      {% if block.type == 'image' %}
-        {% capture img_id %}CustomImage--{{ forloop.index }}-{{ block.settings.image.id }}{% endcapture %}
-        {% capture img_wrapper_id %}CustomImageWrapper--{{ forloop.index }}-{{ block.settings.image.id }}{% endcapture %}
-
-        {% unless block.settings.image == blank %}
-          {% include 'image-style' with image: block.settings.image, small_style: false, width: max_height, height: max_height, wrapper_id: img_wrapper_id, img_id: img_id %}
-        {% endunless %}
-      {% endif %}
-
       <div class="custom__item custom__item--{{block.id}} {{ block_width }} {% if block.settings.alignment %}align--{{ block.settings.alignment }}{% endif %}" {{ block.shopify_attributes }}>
-        <div class="custom__item-inner custom__item-inner--{{ block.type }}"{% if block.type == 'image' %} id="{{ img_wrapper_id }}"{% endif %}>
+        <div class="custom__item-inner custom__item-inner--{{ block.type }}">
           {% case block.type %}
             {% when 'image' %}
               {% if block.settings.image != blank %}
-                {%- assign img_url = block.settings.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-                <div style="padding-top:{{ 1 | divided_by: block.settings.image.aspect_ratio | times: 100}}%;">
-                  <img id="{{ img_id }}"
-                       class="custom__image lazyload js"
-                       src="{{ block.settings.image | img_url: '300x300' }}"
-                       data-src="{{ img_url }}"
-                       data-widths="[180, 360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048]"
-                       data-aspectratio="{{ block.settings.image.aspect_ratio }}"
-                       data-sizes="auto"
-                       alt="{{ block.settings.image.alt | escape }}">
-                </div>
-                <noscript>
-                  {% capture image_size %}{{ max_height }}x{% endcapture %}
-                  {{ block.settings.image | img_url: image_size, scale: 2, crop: 'top' | img_tag: block.settings.image.alt, 'custom__image' }}
-                </noscript>
+                {%- assign image_alt = block.settings.image.alt -%}
+                {{ block.settings.image | img_url: image_size, scale: 2, crop: 'top' | img_tag: image_alt, 'custom__image' }}
               {% else %}
                 {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
               {% endif %}
             {% when 'text' %}
               <div class="medium-up--text-{{ block.settings.align_text }}">
                 {% if block.settings.title != blank %}
-                  <h4 class="h3">{{ block.settings.title | escape }}</h4>
+                  <h2 class="h1 {% if block.settings.text_size == "large" %} mega--large{% endif %}">{{ block.settings.title | escape }}</h4>
                 {% endif %}
                 {% if block.settings.text != blank %}
-                  <div class="rte-setting">{{ block.settings.text }}</div>
+                  <div class="rte-setting{% if block.settings.text_size == "large" %} mega-subtitle--large{% endif %}">{{ block.settings.text }}</div>
+                {% endif %}
+                {% if block.settings.button_label != blank and block.settings.button_link %}
+                  <div class="rte-setting">
+                    <a href="{{ block.settings.button_link }}" class="btn{% if block.settings.button_small %} btn--small{% endif %}{% if block.settings.button_secondary %} btn--secondary{% endif %}" title="{{ block.settings.button_label }}">{{ block.settings.button_label }}</a>
+                  </div>
                 {% endif %}
               </div>
             {% when 'video' %}
@@ -85,7 +100,7 @@
             {% when 'product' %}
               {%- assign product = all_products[block.settings.product] -%}
               {% if product.title.size > 0 %}
-                {% include 'product-card-grid', max_height: max_height %}
+                {% include 'product-card-grid', grid_image_width: image_size %}
               {% else %}
                 {% comment %}
                   No product yet. Show onboarding one.
@@ -105,7 +120,7 @@
               {% endif %}
             {% when 'collection' %}
               {%- assign collection = collections[block.settings.collection] -%}
-              {% include 'collection-grid-item' %}
+              {% include 'collection-grid-item', collection_image_size: image_size %}
             {% when 'html' %}
               {% if block.settings.code != blank %}
                 {{ block.settings.code }}
@@ -121,6 +136,7 @@
     {% include 'no-blocks' %}
   {% endif %}
 </div>
+</div>
 
 {% schema %}
   {
@@ -132,6 +148,16 @@
         "id": "title",
         "label": "Heading",
         "default": "Custom content"
+      },
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color"
+      },
+      {
+        "type": "checkbox",
+        "id": "text_light",
+        "label": "Light text"
       }
     ],
     "blocks": [
@@ -204,6 +230,41 @@
               {"value": "center", "label": "Centered"},
               {"value": "right", "label": "Right"}
             ]
+          },
+          {
+            "type": "select",
+            "id": "text_size",
+            "label": "Text size",
+            "options": [
+              {
+                "label": "Medium",
+                "value": ""
+              },
+              {
+                "label": "Large",
+                "value": "large"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "id": "button_label",
+            "label": "Button label"
+          },
+          {
+            "type": "url",
+            "id": "button_link",
+            "label": "Button link"
+          },
+          {
+            "type": "checkbox",
+            "id": "button_small",
+            "label": "Small button"
+          },
+          {
+            "type": "checkbox",
+            "id": "button_secondary",
+            "label": "Secondary button"
           }
         ]
       },

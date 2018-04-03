@@ -7,6 +7,7 @@
     Get first variant, or deep linked one
   {% endcomment %}
   {%- assign current_variant = product.selected_or_first_available_variant -%}
+  {%- assign product_thumb_size = '110x110' -%}
   {%- assign product_image_zoom_size = '1024x1024' -%}
   {%- assign product_image_scale = '2' -%}
   {%- assign enable_zoom = section.settings.enable_zoom -%}
@@ -16,57 +17,34 @@
       {%- assign product_image_width = 'medium-up--one-third' -%}
       {%- assign product_description_width = 'medium-up--two-thirds' -%}
       {%- assign product_thumbnail_width = 'medium-up--one-third' -%}
-      {%- assign height = 345 -%}
+      {%- assign product_image_size = '345x' -%}
     {% when 'medium' %}
       {%- assign product_image_width = 'medium-up--one-half' -%}
       {%- assign product_description_width = 'medium-up--one-half' -%}
       {%- assign product_thumbnail_width = 'medium-up--one-quarter' -%}
-      {%- assign height = 530 -%}
+      {%- assign product_image_size = '530x' -%}
     {% when 'large' %}
       {%- assign product_image_width = 'medium-up--two-thirds' -%}
       {%- assign product_description_width = 'medium-up--one-third' -%}
       {%- assign product_thumbnail_width = 'medium-up--one-fifth' -%}
-      {%- assign height = 720 -%}
+      {%- assign product_image_size = '720x' -%}
     {% when 'full' %}
       {%- assign product_image_width = '' -%}
       {%- assign product_description_width = '' -%}
       {%- assign product_thumbnail_width = 'medium-up--one-eighth' -%}
-      {%- assign height = 1090 -%}
+      {%- assign product_image_size = '1090x' -%}
       {%- assign enable_zoom = false -%}
   {% endcase %}
 
   <div class="grid product-single">
     <div class="grid__item product-single__photos {{ product_image_width }}{% if section.settings.image_size == 'full' %} product-single__photos--full{% endif %}">
-      {%- assign featured_image = product.selected_or_first_available_variant.featured_image | default: product.featured_image -%}
-      {% for image in product.images %}
-        {% capture img_id %}FeaturedImage-{{ section.id }}-{{ image.id }}{% endcapture %}
-        {% capture img_class %}product-featured-img{% endcapture %}
-        {% capture zoom_img_id %}FeaturedImageZoom-{{ section.id }}-{{ image.id }}{% endcapture %}
-        {% capture img_wrapper_id %}{{ zoom_img_id }}-wrapper{% endcapture %}
-        {%- assign img_url = image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+      {%- assign featured_img_src = current_variant.featured_image.src | default: product.featured_image.src -%}
+      {%- assign featured_img_alt = current_variant.featured_image.alt | default: product.featured_image.alt -%}
+      <div id="FeaturedImageZoom-{{ section.id }}" class="product-single__photo{% if product.images.size > 1 %} product-single__photo--has-thumbnails{% endif %}" {% if enable_zoom %}data-zoom="{{ featured_img_src | img_url: product_image_zoom_size, scale: product_image_scale }}"{% endif %}>
+        <img src="{{ featured_img_src | img_url: product_image_size, scale: product_image_scale }}" alt="{{ featured_img_alt }}" id="FeaturedImage-{{ section.id }}" class="product-featured-img{% if enable_zoom %} js-zoom-enabled{% endif %}">
+      </div>
 
-        {% include 'image-style' with small_style: true, width: height, height: height, wrapper_id: img_wrapper_id, img_id: img_id %}
-
-        <div id="{{ img_wrapper_id }}" class="product-single__photo-wrapper js">
-          <div id="{{ zoom_img_id }}" style="padding-top:{{ 1 | divided_by: image.aspect_ratio | times: 100}}%;" class="product-single__photo{% if enable_zoom %} js-zoom-enabled{% endif %}{% if product.images.size > 1 %} product-single__photo--has-thumbnails{% endif %}{% unless featured_image == image %} hide{% endunless %}" data-image-id="{{ image.id }}"{% if enable_zoom %} data-zoom="{{ image | img_url: product_image_zoom_size, scale: product_image_scale }}"{% endif %}>
-            <img id="{{ img_id }}"
-                 class="feature-row__image {{ img_class }} lazyload{% unless featured_image == image %} lazypreload{% endunless %}"
-                 src="{{ image | img_url: '300x300' }}"
-                 data-src="{{ img_url }}"
-                 data-widths="[180, 360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048]"
-                 data-aspectratio="{{ image.aspect_ratio }}"
-                 data-sizes="auto"
-                 alt="{{ image.alt | escape }}">
-          </div>
-        </div>
-      {% endfor %}
-
-      <noscript>
-        {% capture product_image_size %}{{ height }}x{% endcapture %}
-        <img src="{{ featured_image | img_url: product_image_size, scale: product_image_scale }}" alt="{{ featured_image.alt }}" id="FeaturedImage-{{ section.id }}" class="product-featured-img" style="max-width: {{ height }}px;">
-      </noscript>
-
-      {% if product.images.size > 1 %}
+      {% if product.images.size > 1 and section.settings.show_thumbnails %}
         {% if product.images.size > 3 %}
           {%- assign enable_thumbnail_slides = true -%}
         {% endif %}
@@ -80,12 +58,12 @@
           {% endif %}
           <ul class="grid grid--uniform product-single__thumbnails product-single__thumbnails-{{ section.id }}">
             {% for image in product.images %}
-              <li class="grid__item {{ product_thumbnail_width }} product-single__thumbnails-item js">
-                <a href="{{ image.src | img_url: product_image_zoom_size, scale: product_image_scale }}"
-                   class="text-link product-single__thumbnail product-single__thumbnail--{{ section.id }}"
-                   data-thumbnail-id="{{ image.id }}"
-                   {% if enable_zoom %}data-zoom="{{ image.src | img_url: product_image_zoom_size, scale: product_image_scale }}"{% endif %}>
-                     <img class="product-single__thumbnail-image" src="{{ image.src | img_url: '110x110', scale: 2 }}" alt="{{ image.alt | escape }}">
+              <li class="grid__item {{ product_thumbnail_width }} product-single__thumbnails-item">
+                <a
+                  href="{{ image.src | img_url: product_image_size, scale: product_image_scale }}"
+                    class="text-link product-single__thumbnail product-single__thumbnail--{{ section.id }}"
+                    {% if enable_zoom %}data-zoom="{{ image.src | img_url: product_image_zoom_size, scale: product_image_scale }}"{% endif %}>
+                    <img class="product-single__thumbnail-image" src="{{ image.src | img_url: product_thumb_size, scale: product_image_scale }}" alt="{{ image.alt | escape }}">
                 </a>
               </li>
             {% endfor %}
@@ -139,7 +117,7 @@
           </p>
 
           <form action="/cart/add" method="post" enctype="multipart/form-data" class="product-form product-form-{{ section.id }}{% unless section.settings.show_variant_labels %} product-form--hide-variant-labels{% endunless %}" data-section="{{ section.id }}">
-            {% unless product.has_only_default_variant %}
+            {% unless product.options.size == 1 and product.variants[0].title == 'Default Title' %}
               {% for option in product.options_with_values %}
                 <div class="selector-wrapper js product-form__item">
                   <label {% if option.name == 'default' %}class="label--hidden" {% endif %}for="SingleOptionSelector-{{ forloop.index0 }}">
@@ -188,26 +166,25 @@
 
         </div>
 
+        {% if section.settings.description_below_cart_button != "no" %}
         <div class="product-single__description rte" itemprop="description">
-          {{ product.description }}
+          {%- if section.settings.description_below_cart_button == "full" %}
+            {{ product.description }}
+          {% else %}
+            {{ product.description | split: "<hr>" | first }}</p>
+          {% endif %}
         </div>
+        {% endif %}
 
         {% if section.settings.show_share_buttons %}
+        <div class="product-single__description">
           {% include 'social-sharing', share_title: product.title, share_permalink: product.url, share_image: product %}
+        </div>
         {% endif %}
       </div>
     </div>
   </div>
 </div>
-
-{% if collection %}
-  <div class="text-center return-link-wrapper">
-    <a href="{{ collection.url }}" class="btn btn--secondary btn--has-icon-before return-link">
-      {% include 'icon-arrow-left' %}
-      {{ 'products.product.back_to_collection' | t: title: collection.title }}
-    </a>
-  </div>
-{% endif %}
 
 {% unless product == empty %}
   <script type="application/json" id="ProductJson-{{ section.id }}">
@@ -242,6 +219,32 @@
           }
         ],
         "default": "medium"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_thumbnails",
+        "label": "Show thumbnails",
+        "default": false
+      },
+      {
+        "type": "select",
+        "id": "description_below_cart_button",
+        "label": "Show description below cart button",
+        "options": [
+          {
+            "value": "no",
+            "label": "No"
+          },
+          {
+            "value": "full",
+            "label": "Full description"
+          },
+          {
+            "value": "excerpt",
+            "label": "First paragraph"
+          }
+        ],
+        "default": "full"
       },
       {
         "type": "checkbox",

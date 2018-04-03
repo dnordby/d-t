@@ -1,4 +1,12 @@
-<div class="page-width">
+{% include 'section-wrapper-styling' %}
+
+<style>
+  .logo-bar__item {
+    max-width: {{ section.settings.image_size }}px;
+  }
+</style>
+
+<div class="section-wrapper section-wrapper-{{ section.id }}{% if section.settings.text_light %} section-wrapper--text-light{% endif %}">
   {% if section.settings.title != blank %}
     <div class="section-header text-center">
       <h2>{{ section.settings.title | escape }}</h2>
@@ -13,9 +21,13 @@
             <a href="{{ block.settings.link }}" class="logo-bar__link">
           {% endif %}
           {% if block.settings.image != blank %}
-            {{ block.settings.image | img_url: '160x160', scale: 2 | img_tag: block.settings.image.alt, 'logo-bar__image' }}
+            {%- assign image_size = section.settings.image_size | append: "x" | append: section.settings.image_size -%}
+            {{ block.settings.image | img_url: image_size, scale: 2 | img_tag: section.settings.image.alt, 'logo-bar__image' }}
           {% else %}
             {{ 'logo' | placeholder_svg_tag: 'placeholder-svg' }}
+          {% endif %}
+          {% if block.settings.title != blank %}
+          <h4>{{ block.settings.title }}</h4>
           {% endif %}
           {% if block.settings.link != blank %}
             </a>
@@ -41,6 +53,23 @@
         "id": "title",
         "label": "Heading",
         "default": "Logo list"
+      },
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color"
+      },
+      {
+        "type": "checkbox",
+        "id": "text_light",
+        "label": "Light text"
+      },
+      {
+        "type": "number",
+        "id": "image_size",
+        "label": "Image size",
+        "default": 160,
+        "info": "The image will be set to fit within a box this width by this height (in pixels)."
       }
     ],
     "blocks": [
@@ -52,6 +81,11 @@
             "type": "image_picker",
             "id": "image",
             "label": "Image"
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Heading"
           },
           {
             "type": "url",

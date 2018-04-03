@@ -1,0 +1,623 @@
+{% for block in section.blocks %}
+{% case block.type %}
+{% when "description" %}
+{% include 'section-wrapper-styling', section: block %}
+
+<div class="section-wrapper section-wrapper-{{ block.id }}{% if block.settings.text_light %} section-wrapper--text-light{% endif %}" {{ block.shopify_attributes }}>
+  <div class="page-width feature-row">
+    <div class="rte" itemprop="description">
+      {%- capture product_description -%}{% include 'product-description' %}{%- endcapture -%}
+      {%- assign description_parts = product_description | split: '<h2>' -%}
+      {%- if block.settings.layout == "tabs" -%}
+      <div class="description-tabs" data-tabs>
+        {%- assign tab_count = 0 -%}
+        {%- for tab_part in description_parts -%}
+        {%- assign description = tab_part | split: '</h2>' -%}
+        {%- assign tab_title = description | first -%}
+        {%- assign tab_content = description | last -%}
+        {%- if tab_title == tab_content -%}
+        {{ tab_content }}
+        {%- elsif tab_title != blank and tab_content != blank -%}
+        <div class="description-tab__header">
+          <h2><a href="#{{ tab_title | handle }}" data-tab-target="#{{ tab_title | handle }}"{% if tab_count == 0 %} data-tab-active{% endif %}>{{ tab_title }}</a></h2>
+        </div>
+        {% include 'product-tab-content' %}
+        {%- assign tab_count = tab_count | plus: 1 -%}
+        {%- endif -%}
+        {%- endfor -%}
+      </div>
+      {%- elsif block.settings.layout == "columns" -%}
+      {%- assign tab_content = product_description -%}
+      <div class="description-tabs">
+        {% include 'product-tab-content' %}
+      </div>
+      {% else %}
+      {{ product_description }}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% when "feature_row" %}
+{% include 'section-wrapper-styling', section: block %}
+
+<div class="section-wrapper section-wrapper-{{ block.id }}{% if block.settings.text_light %} section-wrapper--text-light{% endif %}" {{ block.shopify_attributes }}>
+<div class="page-width feature-row">
+  {% capture image_layout %}
+    <div class="feature-row__item">
+      {% if block.settings.image != blank %}
+        {{ block.settings.image | img_url: '600x600' | img_tag: block.settings.image.alt, 'feature-row__image' }}
+      {% else %}
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+      {% endif %}
+    </div>
+  {% endcapture %}
+
+  <div class="feature-row">
+    {% if block.settings.layout == 'left' %}
+      {{ image_layout }}
+    {% endif %}
+
+    <div class="feature-row__item feature-row__text feature-row__text--{{ block.settings.layout }}">
+      {% if block.settings.title != blank %}
+        <h2 class="h3">{{ block.settings.title | escape }}</h2>
+      {% endif %}
+      {% if block.settings.text != blank %}
+        <div class="rte-setting featured-row__subtext">{{ block.settings.text }}</div>
+      {% endif %}
+      {% if block.settings.button_label != blank and block.settings.button_link != blank %}
+        <a href="{{ block.settings.button_link }}" class="btn">
+          {{ block.settings.button_label | escape }}
+        </a>
+      {% endif %}
+    </div>
+
+    {% if block.settings.layout == 'right' %}
+      {{ image_layout }}
+    {% endif %}
+  </div>
+</div>
+</div>
+{% when "hero" %}
+<div class="hero hero--{{ block.settings.hero_size }}{% if block.settings.title != blank or block.settings.text != blank or block.settings.button_label != blank %} hero__overlay{% endif %}"{% if block.settings.image %} style="background-image: url('{{ block.settings.image | img_url: '2048x' }}'); background-position: center {{ block.settings.alignment }};"{% endif %} {{ block.shopify_attributes }}>
+  {% if block.settings.image == blank %}
+    <div class="placeholder-background">
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+  {% endif %}
+  <div class="hero__inner">
+    <div class="page-width">
+      <div class="hero--text-{{ block.settings.text_placement }}">
+      {% if block.settings.title != blank %}
+        <h2 class="h1 mega-title{% if block.settings.text_size == 'large' %} mega-title--large{% endif %}">{{ block.settings.title | escape }}</h2>
+      {% endif %}
+      {% if block.settings.text != blank %}
+        <div class="rte-setting mega-subtitle{% if block.settings.text_size == 'large' %} mega-subtitle--large{% endif %}">{{ block.settings.text }}</div>
+      {% endif %}
+      {% if block.settings.button_label != blank and block.settings.button_link != blank %}
+        <a href="{{ block.settings.button_link }}" class="btn hero__btn">
+          {{ block.settings.button_label | escape }}
+        </a>
+      {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% when "gallery" %}
+<div class="grid grid--no-gutters image-bar image-bar--{{ block.settings.section_height }}" {{ block.shopify_attributes }}>
+  {%- assign images_shown_this_block = 0 -%}
+  {%- assign image_srcs_this_block = "" -%}
+
+  {%- for image in product.images -%}
+    {%- unless images_shown_this_block >= block.settings.image_count or image.attached_to_variant? or image_srcs_all_blocks contains image.src -%}
+      {%- assign images_shown_this_block = images_shown_this_block | plus: 1 -%}
+      {%- assign image_srcs_all_blocks = image_srcs_all_blocks | append: image.src | append: " " -%}
+      {%- assign image_srcs_this_block = image_srcs_this_block | append: image.src | append: " " -%}
+    {%- endunless -%}
+  {%- endfor -%}
+
+  {%- assign image_columns = image_srcs_this_block | strip | split: " " | size -%}
+
+  {%- case image_columns -%}
+    {%- when 1 -%}
+      {%- assign column_size = '' -%}
+      {%- assign image_size = '2048x' -%}
+    {%- when 2 -%}
+      {%- assign column_size = 'medium-up--one-half' -%}
+      {%- assign image_size = '2048x' -%}
+    {%- when 3 -%}
+      {%- assign column_size = 'medium-up--one-third' -%}
+      {%- assign image_size = '1700x' -%}
+    {%- else -%}
+      {%- assign column_size = 'medium-up--one-quarter' -%}
+      {%- assign image_size = '1280x' -%}
+  {%- endcase -%}
+
+  {%- for image in product.images -%}
+    {%- if image_srcs_this_block contains image.src -%}
+    {%- assign img_url = image.src | img_url: image_size, crop: 'center' -%}
+    <div class="grid__item {{ column_size }}">
+      <style>
+        .image-bar__item--{{ forloop.index }} {
+          background-position: center;
+        }
+      </style>
+
+      <div class="image-bar__item image-bar__item--{{ forloop.index }}" style="background-image: url({{ img_url }});">
+        <div class="image-bar__content{% if image.alt != blank and image.alt != product.title and block.settings.show_alt_text %} image-bar__overlay{% endif %}">
+          {% if image.alt != blank and image.alt != product.title and block.settings.show_alt_text %}
+            <div class="image-bar__text">
+              <h3 class="image-bar__caption">{{ image.alt }}</h3>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {%- endif -%}
+  {%- endfor -%}
+</div>
+{% endcase %}
+{% endfor %}
+
+{% schema %}
+  {
+    "name": "Feature content",
+    "settings": [
+    ],
+    "blocks": [
+      {
+        "type": "description",
+        "name": "Product description",
+        "settings": [
+          {
+            "type": "color",
+            "id": "background_color",
+            "label": "Background color"
+          },
+          {
+            "type": "checkbox",
+            "id": "text_light",
+            "label": "Light text"
+          },
+          {
+            "type": "checkbox",
+            "id": "show_first_paragraph",
+            "label": "Show first paragraph",
+            "default": true
+          },
+          {
+            "type": "select",
+            "id": "layout",
+            "label": "Layout",
+            "options": [
+              {
+                "value": "block",
+                "label": "Block"
+              },
+              {
+                "value": "columns",
+                "label": "Columns"
+              },
+              {
+                "value": "tabs",
+                "label": "Tabs"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "feature_row",
+        "name": "Image with text",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+          },
+          {
+            "type": "color",
+            "id": "background_color",
+            "label": "Background color"
+          },
+          {
+            "type": "checkbox",
+            "id": "text_light",
+            "label": "Light text"
+          },
+          {
+            "type": "select",
+            "id": "layout",
+            "label": "Layout",
+            "default": "left",
+            "options": [
+              {
+                "value": "left",
+                "label": "Image on left"
+              },
+              {
+                "value": "right",
+                "label": "Image on right"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Heading",
+            "default": "Image with text"
+          },
+          {
+            "type": "richtext",
+            "id": "text",
+            "label": "Text",
+            "default": "<p>Pair large text with an image to give focus to your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>"
+          },
+          {
+            "type": "text",
+            "id": "button_label",
+            "label": "Button label"
+          },
+          {
+            "type": "url",
+            "id": "button_link",
+            "label": "Button link"
+          }
+        ]
+      },
+      {
+        "type": "hero",
+        "name": "Image with text overlay",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+          },
+          {
+            "type": "select",
+            "id": "alignment",
+            "label": "Image alignment",
+            "default": "center",
+            "options": [
+              {
+                "value": "top",
+                "label": "Top"
+              },
+              {
+                "value": "center",
+                "label": "Middle"
+              },
+              {
+                "value": "bottom",
+                "label": "Bottom"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Heading",
+            "default": "Image with text overlay"
+          },
+          {
+            "type": "richtext",
+            "id": "text",
+            "label": "Text",
+            "default": "<p>Use overlay text to give your customers insight into your brand. Select imagery and text that relates to your style and story.</p>"
+          },
+          {
+            "type": "select",
+            "id": "hero_size",
+            "label": "Section height",
+            "default": "medium",
+            "options": [
+              {
+                "label": "Extra Small",
+                "value": "x-small"
+              },
+              {
+                "label": "Small",
+                "value": "small"
+              },
+              {
+                "label": "Medium",
+                "value": "medium"
+              },
+              {
+                "label": "Large",
+                "value": "large"
+              },
+              {
+                "label": "Extra Large",
+                "value": "x-large"
+              }
+            ]
+          },
+          {
+            "type": "select",
+            "id": "text_size",
+            "label": "Text size",
+            "default": "medium",
+            "options": [
+              {
+                "label": "Medium",
+                "value": "medium"
+              },
+              {
+                "label": "Large",
+                "value": "large"
+              }
+            ]
+          },
+          {
+            "type": "select",
+            "id": "text_placement",
+            "label": "Text placement",
+            "default": "center",
+            "options": [
+              {
+                "label": "Left",
+                "value": "left"
+              },
+              {
+                "label": "Center",
+                "value": "center"
+              },
+              {
+                "label": "Right",
+                "value": "right"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "id": "button_label",
+            "label": "Button label"
+          },
+          {
+            "type": "url",
+            "id": "button_link",
+            "label": "Button link"
+          }
+        ]
+      },
+      {
+        "type": "gallery",
+        "name": "Gallery",
+        "settings": [
+          {
+            "type": "select",
+            "id": "section_height",
+            "label": "Section height",
+            "default": "medium",
+            "options": [
+              {
+                "label": "Extra Small",
+                "value": "x-small"
+              },
+              {
+                "label": "Small",
+                "value": "small"
+              },
+              {
+                "label": "Medium",
+                "value": "medium"
+              },
+              {
+                "label": "Large",
+                "value": "large"
+              },
+              {
+                "label": "Extra Large",
+                "value": "x-large"
+              }
+            ]
+          },
+          {
+            "type": "checkbox",
+            "id": "show_alt_text",
+            "label": "Show alt text on images"
+          },
+          {
+            "type": "number",
+            "id": "image_count",
+            "label": "Images to show",
+            "default": 4
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
+
+{% javascript %}
+  if (!document.querySelector && !window.addEventListener && !("classList" in d.createElement("p"))) return;
+  var Tabs = function () {
+    this.ele = document.querySelector('[data-tabs]');
+    if (!this.ele) return;
+
+    this.actions = this.ele.querySelectorAll('[data-tab-target]');
+    this.active = this.ele.querySelector('[data-tab-active]');
+    if (this.actions.length) {
+      document.documentElement.classList.add('has-tabs');
+      this._addEventListeners();
+      this.closeAllTabs();
+      this.openActive();
+    }
+  };
+  Tabs.prototype.openTab = function (ele) {
+    this.active = ele;
+    ele.setAttribute('data-tab-active', '');
+    var targetStr = ele.getAttribute('data-tab-target');
+    var target = this.ele.querySelector(targetStr);
+    target.style.display = 'block';
+    $(window).trigger('orderly');
+  };
+  Tabs.prototype.closeTab = function (ele) {
+    ele.removeAttribute('data-tab-active');
+    var targetStr = ele.getAttribute('data-tab-target');
+    var target = this.ele.querySelector(targetStr);
+    target.style.display = 'none';
+  };
+  Tabs.prototype.closeAllTabs = function () {
+    var target,
+      targetStr,
+      _this = this;
+    this._eachAction(function (tabAction) {
+      _this.closeTab(tabAction);
+    });
+  };
+  Tabs.prototype.openActive = function () {
+    var active = this.active;
+    if (!!location.hash) {
+      active = this.ele.querySelector('[href="'+location.hash+'"]');
+    }
+    if (active) {
+      this.openTab(active);
+    }
+  };
+  Tabs.prototype._updateHash = function (hash) {
+    if (history.pushState) {
+      history.pushState(null, null, hash);
+    } else {
+      location.hash = hash;
+    }
+  };
+  Tabs.prototype._addEventListeners = function () {
+    var _this = this;
+    this._eachAction(function (tabAction) {
+      tabAction.addEventListener('click', function (e) {
+        e.preventDefault();
+        _this.closeAllTabs();
+        _this.openTab(e.currentTarget);
+        _this._updateHash(e.currentTarget.getAttribute('href'));
+        e.currentTarget.blur();
+      });
+    });
+  };
+  Tabs.prototype._eachAction = function (callback) {
+    for (var i = 0; i < this.actions.length; i++) {
+      callback(this.actions[i]);
+    }
+  };
+  new Tabs();
+
+  $(document).on('shopify:section:load', function () {
+    new Tabs();
+  });
+
+  // Orderly
+  $(function () {
+    $( '.description-tab__sub-content--heading > h3' ).orderly();
+  });
+
+  // Youtube video
+  $('.slideshow__video').each(function() {
+    var $el = $(this);
+    theme.SlideshowVideo.init($el);
+    theme.SlideshowVideo.loadVideo($el.attr('id'));
+  });
+{% endjavascript %}
+
+{% stylesheet 'scss' %}
+  .description-tab__header {
+    padding-top: 1.5em;
+    .no-js &:first-child {
+      padding-top: 0;
+    }
+  }
+  .has-tabs {
+    .description-tabs {
+      position: relative;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-orient: horizontal;
+      -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+      flex-direction: row;
+      -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+    }
+    .description-tab__header {
+      width: 100%;
+      padding: 0;
+      text-align: center;
+
+      @media (min-width: 60em) {
+        order: 0;
+        width: auto;
+      }
+
+      h2 {
+        margin-bottom: 0;
+        font-size: 1em;
+      }
+
+      a {
+        display: block;
+        padding: 1em;
+        margin-right: -1px;
+        margin-bottom: -1px;
+        border: darken(#f9f9f9, 10%) solid 1px;
+      }
+    }
+    .description-tab__content {
+      width: 100%;
+      padding-top: 1.5em;
+      padding-bottom: 1.5em;
+
+      @media (min-width: 60em) {
+        order: 1;
+        padding-bottom: 0;
+      }
+    }
+    [data-tab-active] {
+      background-color: darken(#f9f9f9, 5%);
+    }
+  }
+
+  .description-tab__sub-contents {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    margin-left: -1em;
+    margin-right: -1em;
+  }
+  .description-tab__sub-content {
+    width: 100%;
+    padding: 1em;
+  }
+
+  @media (min-width: 40em) {
+    [data-heading-count] .description-tab__sub-content--heading {
+      width: 50%;
+    }
+  }
+  @media (min-width: 60em) {
+    [data-heading-count] .description-tab__sub-content--heading {
+      width: 25%;
+    }
+    [data-heading-count="3"] .description-tab__sub-content--heading {
+      width: 33.3333%;
+    }
+    [data-heading-count="2"] .description-tab__sub-content--heading {
+      width: 50%;
+    }
+    [data-heading-count="1"] .description-tab__sub-content--heading {
+      width: 100%;
+    }
+  }
+{% endstylesheet %}

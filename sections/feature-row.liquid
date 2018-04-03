@@ -1,27 +1,11 @@
+{% include 'section-wrapper-styling' %}
+
+<div class="section-wrapper section-wrapper-{{ section.id }}{% if section.settings.text_light %} section-wrapper--text-light{% endif %}">
 <div class="page-width feature-row">
   {% capture image_layout %}
     <div class="feature-row__item">
       {% if section.settings.image != blank %}
-        {% capture img_id %}FeatureRowImage-{{ section.id }}{% endcapture %}
-        {% capture wrapper_id %}FeatureRowImageWrapper-{{ section.id }}{% endcapture %}
-        {%- assign img_url = section.settings.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-        {% include 'image-style' with image: section.settings.image, width: 545, height: 545, small_style: true, wrapper_id: wrapper_id, img_id: img_id %}
-        <div id="{{ wrapper_id }}" class="feature-row__image-wrapper js">
-          <div style="padding-top:{{ 1 | divided_by: section.settings.image.aspect_ratio | times: 100}}%;">
-            <img id="{{ img_id }}"
-                 class="feature-row__image lazyload"
-                 src="{{ section.settings.image | img_url: '200x200' }}"
-                 data-src="{{ img_url }}"
-                 data-widths="[180, 360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048]"
-                 data-aspectratio="{{ section.settings.image.aspect_ratio }}"
-                 data-sizes="auto"
-                 alt="{{ section.settings.image.alt | escape }}">
-          </div>
-        </div>
-
-        <noscript>
-          {{ section.settings.image | img_url: '600x600', scale: 2 | img_tag: section.settings.image.alt, 'feature-row__image' }}
-        </noscript>
+        {{ section.settings.image | img_url: '600x600' | img_tag: section.settings.image.alt, 'feature-row__image' }}
       {% else %}
         {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
       {% endif %}
@@ -52,6 +36,7 @@
     {% endif %}
   </div>
 </div>
+</div>
 
 {% schema %}
   {
@@ -64,18 +49,28 @@
         "label": "Image"
       },
       {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color"
+      },
+      {
+        "type": "checkbox",
+        "id": "text_light",
+        "label": "Light text"
+      },
+      {
         "type": "select",
         "id": "layout",
-        "label": "Image alignment",
+        "label": "Layout",
         "default": "left",
         "options": [
           {
             "value": "left",
-            "label": "Left"
+            "label": "Image on left"
           },
           {
             "value": "right",
-            "label": "Right"
+            "label": "Image on right"
           }
         ]
       },

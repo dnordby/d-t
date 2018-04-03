@@ -18,19 +18,17 @@ $(function() {
   });
 
   // Auto-select gift card code on click, based on ID passed to the function
-  $(config.giftCardCode).on('click', { element: 'GiftCardDigits' }, selectText);
+  $(config.giftCardCode).on('click', {element: 'GiftCardDigits'}, selectText);
 
   function selectText(evt) {
     var text = document.getElementById(evt.data.element);
     var range = '';
 
-    if (document.body.createTextRange) {
-      // ms method
+    if (document.body.createTextRange) { // ms method
       range = document.body.createTextRange();
       range.moveToElementText(text);
       range.select();
-    } else if (window.getSelection) {
-      // moz, opera, webkit method
+    } else if (window.getSelection) { // moz, opera, webkit method
       var selection = window.getSelection();
       range = document.createRange();
       range.selectNodeContents(text);

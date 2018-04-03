@@ -1,13 +1,23 @@
-{% case section.settings.grid %}
+<style>
+  {% case section.settings.grid %}
   {% when '2' %}
-    {%- assign max_height = 530 -%}
+    .grid__item--{{section.id}} .grid-view-item__image {
+      max-height: 530px;
+    }
   {% when '3' %}
-    {%- assign max_height = 345 -%}
+    .grid__item--{{section.id}} .grid-view-item__image {
+      max-height: 345px;
+    }
   {% when '4' %}
-    {%- assign max_height = 250 -%}
+    .grid__item--{{section.id}} .grid-view-item__image {
+      max-height: 250px;
+    }
   {% when '5' %}
-    {%- assign max_height = 195 -%}
-{% endcase %}
+    .grid__item--{{section.id}} .grid-view-item__image {
+      max-height: 195px;
+    }
+  {% endcase %}
+</style>
 
 {% if section.settings.layout == 'grid' %}
   {%- assign limit = section.settings.grid | times: section.settings.rows -%}
@@ -22,14 +32,7 @@
 
     {% if section.settings.show_collection_image and collection.image %}
       <div class="collection-hero">
-        <div class="collection-hero__image ratio-container lazyload js"
-             data-bgset="{% include 'bgset', image: collection.image %}"
-             data-sizes="auto"
-             data-parent-fit="cover"
-             style="background-image: url('{{ collection.image | img_url: '300x300' }});"></div>
-        <noscript>
-          <div class="collection-hero__image" style="background-image: url({{ collection.image | img_url: '2048x600', crop: 'top' }});"></div>
-        </noscript>
+        <div class="collection-hero__image" style="background-image: url({{ collection.image | img_url: '2048x600', crop: 'top' }});"></div>
         <div class="collection-hero__title-wrapper">
           <h1 class="collection-hero__title page-width">{{ collection.title }}</h1>
         </div>
@@ -129,7 +132,7 @@
                     <option value="created-ascending"{% if sort_by == "created-ascending" %} selected="selected"{% endif %}>{{ 'collections.sorting.date_ascending' | t }}</option>
                   {% endif %}
                 </select>
-                <input id="DefaultSortBy" type="hidden" value="{{ collection.default_sort_by }}">
+                <input class="collection-header__default-sort" type="hidden" value="{{ collection.default_sort_by }}">
               </div>
             {% endif %}
           </div>
@@ -138,23 +141,29 @@
     {% endif %}
   </header>
 
-  <div class="page-width" id="Collection">
-    {% if section.settings.layout == 'grid' %}
+  <div id="Collection">
+    {% case section.settings.layout %}
+      {% when "grid" %}
+      <div class="page-width">
       {% case section.settings.grid %}
       {% when '2' %}
         {%- assign grid_item_width = 'medium-up--one-half' -%}
+        {%- assign image_size = '530x530' -%}
       {% when '3' %}
         {%- assign grid_item_width = 'small--one-half medium-up--one-third' -%}
+        {%- assign image_size = '345x345' -%}
       {% when '4' %}
         {%- assign grid_item_width = 'small--one-half medium-up--one-quarter' -%}
+        {%- assign image_size = '250x250' -%}
       {% when '5' %}
         {%- assign grid_item_width = 'small--one-half medium-up--one-fifth' -%}
+        {%- assign image_size = '195x195' -%}
       {% endcase %}
 
       <div class="grid grid--uniform{% if collection.products_count > 0 %} grid--view-items{% endif %}">
         {% for product in collection.products %}
-          <div class="grid__item grid__item--{{section.id}} {{ grid_item_width }}">
-            {% include 'product-card-grid', max_height: max_height %}
+          <div class="grid__item grid__item--{{section.id}} {{ grid_item_width }}{% if section.settings.text_alignment != blank %} text-{{ section.settings.text_alignment }}{% endif %}">
+            {% include 'product-card-grid', grid_image_width: image_size %}
           </div>
         {% else %}
           {% comment %}
@@ -167,7 +176,7 @@
             <div class="grid__item">
               <div class="grid grid--uniform">
                 {% for i in (1..limit) %}
-                  <div class="grid__item {{ grid_item_width }}">
+                  <div class="grid__item {{ grid_item_width }}{% if section.settings.text_alignment != blank %} text-{{ section.settings.text_alignment }}{% endif %}">
                     <div class="grid-view-item">
                       <a href="#" class="grid-view-item__link">
                         <div class="grid-view-item__image">
@@ -189,7 +198,60 @@
           {% endif %}
         {% endfor %}
       </div>
+    </div>
+    {% when "tiles" %}
+    {% for product in collection.products %}
+    {%- capture row_layout -%}{% cycle 'left', 'right' %}{%- endcapture -%}
+    <div class="section-wrapper{% if section.settings.zebra_stripe_rows %} section-wrapper-{{ row_layout }}{% endif %} section-wrapper-compact section-wrapper-{{ collection.id }}">
+      <div class="page-width">
+      <div class="feature-row">
+        {% capture image_layout %}
+        <div class="feature-row__item">
+          <a href="{{ product.url }}" title="{{ product.tite }}">
+          {% if product.featured_image %}
+          {{ product.featured_image.src | img_url: '1024x1024' | img_tag: product.featured_image.alt, 'feature-row__image' }}
+          {% else %}
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+          {% endif %}
+          </a>
+        </div>
+        {% endcapture %}
+
+        <div class="feature-row">
+          {% if row_layout == 'right' %}
+          {{ image_layout }}
+          {% endif %}
+
+          <div class="feature-row__item feature-row__text feature-row__text--{{ row_layout }}">
+            <div class="rte-setting featured-row__subtext">
+              <h2>{{ product.title }}</h2>
+              {% if product.description %}
+              {{ product.description | split: '</p>' | first }}</p>
+              {% endif %}
+
+              {% if section.settings.show_vendor %}
+                <div class="grid-view-item__vendor">{{ product.vendor }}</div>
+              {% endif %}
+              <div class="grid-view-item__meta">
+                {% include 'product-price' %}
+              </div>
+            </div>
+
+            <a href="{{ product.url }}" class="btn">
+              Shop Now
+            </a>
+          </div>
+
+          {% if row_layout == 'left' %}
+          {{ image_layout }}
+          {% endif %}
+        </div>
+      </div>
+      </div>
+    </div>
+    {% endfor %}
     {% else %}
+    <div class="page-width">
       <div class="list-view-items">
         {% for product in collection.products %}
           <a href="{{ product.url | within: collection }}" class="list-view-item">
@@ -229,7 +291,8 @@
           {% endif %}
         {% endfor %}
       </div>
-    {% endif %}
+    </div>
+    {% endcase %}
 
     {% if is_empty_collection %}
       <div class="grid__item small--text-center">
@@ -262,6 +325,10 @@
           {
             "value": "list",
             "label": "List"
+          },
+          {
+            "value": "tiles",
+            "label": "Tiles"
           }
         ]
       },
@@ -330,6 +397,22 @@
         "id": "show_collection_image",
         "label": "Show collection image",
         "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "zebra_stripe_rows",
+        "label": "Zebra stripe rows",
+        "info": "Shows on tile layout only"
+      },
+      {
+        "type": "select",
+        "id": "text_alignment",
+        "label": "Text alignment",
+        "options": [
+          {"value": "", "label": "Left"},
+          {"value": "center", "label": "Center"},
+          {"value": "right", "label": "Right"}
+        ]
       },
       {
         "type": "checkbox",

@@ -1,8 +1,8 @@
 development:
-  password: 7d10ceb189268fb2b33e58669ea9b715
-  theme_id: "12636258357"
-  store: dormtshirts.myshopify.com
+  password: b29e514d9ce24988d617c1aa5e7151ea
+  theme_id: "12679315516"
+  store: dormt-shirts.myshopify.com
 production:
-  password: 7d10ceb189268fb2b33e58669ea9b715
-  theme_id: "12636258357"
-  store: dormtshirts.myshopify.com
+  password: b29e514d9ce24988d617c1aa5e7151ea
+  theme_id: "12679315516"
+  store: dormt-shirts.myshopify.com

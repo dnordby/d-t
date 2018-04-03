@@ -52,12 +52,12 @@ $transition-link-hover: 0.1s cubic-bezier(0.44, 0.13, 0.48, 0.87);
 $color-body: {{ settings.color_body_bg }};
 $color-bg: {{ settings.color_body_bg }};
 $color-drawer-background: rgba(0, 0, 0, 0.6);
-$color-bg-alt: {{ settings.color_body_text | color_modify: 'alpha', 0.05 }};
+$color-newsletter-background: {{ settings.color_body_text | color_modify: 'alpha', 0.1 }};
 
 // Overlays
 $color-overlay-title-text: {{ settings.color_image_overlay_text }};
 $color-image-overlay: {{ settings.color_image_overlay }};
-$opacity-image-overlay: {{ settings.image_overlay_opacity | divided_by: 100.00 }};
+$opacity-image-overlay: {{ settings.image_overlay_opacity }};
 
 // Border colors
 $color-border: {{ settings.color_borders }};

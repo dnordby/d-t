@@ -1,3 +1,6 @@
+{% include 'section-wrapper-styling' %}
+
+<div class="section-wrapper section-wrapper-{{ section.id }}{% if section.settings.text_light %} section-wrapper--text-light{% endif %}">
 <div class="page-width">
   {% if section.settings.title != blank %}
     <div class="section-header text-center">
@@ -6,14 +9,18 @@
   {% endif %}
 
   {% case section.settings.grid %}
-    {% when 2 %}
+    {% when '2' %}
       {%- assign grid_item_width = 'medium-up--one-half' -%}
-    {% when 3 %}
+      {%- assign image_size = '530x530' -%}
+    {% when '3' %}
       {%- assign grid_item_width = 'small--one-half medium-up--one-third' -%}
-    {% when 4 %}
+      {%- assign image_size = '340x340' -%}
+    {% when '4' %}
       {%- assign grid_item_width = 'small--one-half medium-up--one-quarter' -%}
-    {% when 5 %}
+      {%- assign image_size = '250x250' -%}
+    {% when '5' %}
       {%- assign grid_item_width = 'small--one-half medium-up--one-fifth' -%}
+      {%- assign image_size = '190x190' -%}
   {% endcase %}
 
   <div class="collection-grid">
@@ -21,7 +28,7 @@
       {% for block in section.blocks limit: section.blocks.size %}
         <div class="grid__item {{ grid_item_width }}" {{ block.shopify_attributes }}>
           {%- assign collection = collections[block.settings.collection] -%}
-          {% include 'collection-grid-item' %}
+          {% include 'collection-grid-item', collection_image_size: image_size %}
         </div>
       {% endfor %}
     </div>
@@ -30,6 +37,7 @@
   {% if section.blocks.size == 0 %}
     {% include 'no-blocks' %}
   {% endif %}
+</div>
 </div>
 
 {% schema %}
@@ -45,13 +53,38 @@
         "default": "Collection list"
       },
       {
-        "type": "range",
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color"
+      },
+      {
+        "type": "checkbox",
+        "id": "text_light",
+        "label": "Light text"
+      },
+      {
+        "type": "select",
         "id": "grid",
         "label": "Collections per row",
-        "min": 2,
-        "max": 5,
-        "step": 1,
-        "default": 3
+        "default": "3",
+        "options": [
+          {
+            "value": "2",
+            "label": "2"
+          },
+          {
+            "value": "3",
+            "label": "3"
+          },
+          {
+            "value": "4",
+            "label": "4"
+          },
+          {
+            "value": "5",
+            "label": "5"
+          }
+        ]
       }
     ],
     "blocks": [
@@ -71,6 +104,9 @@
       {
         "name": "Collection list",
         "category": "Collection",
+        "settings": {
+          "grid": "3"
+        },
         "blocks": [
           {
             "type": "featured_collection"

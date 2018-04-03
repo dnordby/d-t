@@ -1,17 +1,12 @@
-<div class="hero hero--{{ section.settings.hero_size }}{% if section.settings.title != blank or section.settings.text != blank or section.settings.button_label != blank %} hero__overlay{% endif %} box ratio-container lazyload js"
-     {% if section.settings.image %}
-     data-bgset="{% include 'bgset', image: section.settings.image %}"
-     data-sizes="auto"
-     data-parent-fit="cover"
-     style="background-position: {{ section.settings.alignment }}; background-image: url('{{ section.settings.image | img_url: '300x300' }});"
-     {% endif %}>
+<div class="hero hero--{{ section.settings.hero_size }}{% if section.settings.title != blank or section.settings.text != blank or section.settings.button_label != blank %} hero__overlay{% endif %}"{% if section.settings.image %} style="background-image: url('{{ section.settings.image | img_url: '2048x' }}'); background-position: center {{ section.settings.alignment }};"{% endif %}>
   {% if section.settings.image == blank %}
     <div class="placeholder-background">
       {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
     </div>
   {% endif %}
   <div class="hero__inner">
-    <div class="page-width text-center">
+    <div class="page-width">
+      <div class="hero--text-{{ section.settings.text_placement }}">
       {% if section.settings.title != blank %}
         <h2 class="h1 mega-title{% if section.settings.text_size == 'large' %} mega-title--large{% endif %}">{{ section.settings.title | escape }}</h2>
       {% endif %}
@@ -23,13 +18,10 @@
           {{ section.settings.button_label | escape }}
         </a>
       {% endif %}
+      </div>
     </div>
   </div>
 </div>
-
-<noscript>
-  <div class="hero hero--{{ section.settings.hero_size }}{% if section.settings.title != blank or section.settings.text != blank or section.settings.button_label != blank %} hero__overlay{% endif %}"{% if section.settings.image %} style="background-image: url('{{ section.settings.image | img_url: '2048x' }}'); background-position: center {{ section.settings.alignment }};"{% endif %}></div>
-</noscript>
 
 {% schema %}
   {
@@ -114,6 +106,26 @@
           {
             "label": "Large",
             "value": "large"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "text_placement",
+        "label": "Text placement",
+        "default": "center",
+        "options": [
+          {
+            "label": "Left",
+            "value": "left"
+          },
+          {
+            "label": "Center",
+            "value": "center"
+          },
+          {
+            "label": "Right",
+            "value": "right"
           }
         ]
       },

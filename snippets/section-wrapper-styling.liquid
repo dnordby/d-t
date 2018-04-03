@@ -1,0 +1,15 @@
+{%- if section.settings.background_color != blank -%}
+<style>
+.section-wrapper-{{ section.id }} {
+  background-color: {{ section.settings.background_color }};
+}
+
+.section-wrapper-{{ section.id }}.section-wrapper--text-light input {
+  color: white;
+}
+
+.section-wrapper-{{ section.id }}.section-wrapper--text-light .btn {
+  color: {{ section.settings.background_color }} !important;
+}
+</style>
+{%- endif -%}

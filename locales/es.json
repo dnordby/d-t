@@ -72,10 +72,11 @@
       "close_video": "Cerca de vídeo"
     },
     "map": {
+      "get_directions": "Obtener las direcciones",
       "address_error": "No se puede encontrar esa dirección",
       "address_no_results": "No results for that address",
       "address_query_limit_html": "Se ha excedido el límite de uso de la API de Google . Considere la posibilidad de actualizar a un <a href=\"https:\/\/developers.google.com\/maps\/premium\/usage-limits\">Plan Premium<\/a>.",
-      "auth_error_html": "Hubo un problema de autenticación con su cuenta de Google Maps."
+      "auth_error_html": "Hubo un problema de autenticación con su cuenta de Google Maps. Crear y habilitar la <a href=\"https:\/\/developers.google.com\/maps\/documentation\/javascript\/get-api-key\">API de JavaScript<\/a> y <a href=\"https:\/\/developers.google.com\/maps\/documentation\/geocoding\/get-api-key\">API de geocodificación<\/a> permiso para su aplicación."
     }
   },
   "blogs": {
@@ -234,8 +235,7 @@
       "quantity": "Cantidad",
       "total": "Total",
       "fulfilled_at": "Finalizado {{ date }}",
-      "subtotal": "Subtotal",
-      "track_shipment": "Rastrear envío"
+      "subtotal": "Subtotal"
     },
     "recover_password": {
       "title": "Restablecer su contraseña",

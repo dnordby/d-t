@@ -1,3 +1,6 @@
+{% include 'section-wrapper-styling' %}
+
+<div class="section-wrapper section-wrapper-{{ section.id }}{% if section.settings.text_light %} section-wrapper--text-light{% endif %}">
 <div class="page-width" data-section-id="{{ section.id }}" data-section-type="quotes">
   {% if section.settings.title != blank %}
     <div class="section-header text-center">
@@ -29,6 +32,7 @@
     {% include 'no-blocks' %}
   {% endif %}
 </div>
+</div>
 
 {% schema %}
   {
@@ -41,6 +45,16 @@
         "id": "title",
         "label": "Heading",
         "default": "Testimonials"
+      },
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color"
+      },
+      {
+        "type": "checkbox",
+        "id": "text_light",
+        "label": "Light text"
       }
     ],
     "blocks": [

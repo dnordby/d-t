@@ -53,7 +53,7 @@
 
             <div class="grid__item medium-up--one-half">
               <label for="AddressCountryNew">{{ 'customer.addresses.country' | t }}</label>
-              <select id="AddressCountryNew" name="address[country]" data-default="{{ form.country }}">{{ all_country_option_tags }}</select>
+              <select id="AddressCountryNew" name="address[country]" data-default="{{ form.country }}">{{ country_option_tags }}</select>
             </div>
           </div>
 
@@ -129,7 +129,7 @@
               </div>
               <div class="grid__item medium-up--one-half">
                 <label for="AddressCountry_{{ form.id }}">{{ 'customer.addresses.country' | t }}</label>
-                <select id="AddressCountry_{{ form.id }}" class="address-country-option" data-form-id="{{ form.id }}" name="address[country]" data-default="{{ form.country }}">{{ all_country_option_tags }}</select>
+                <select id="AddressCountry_{{ form.id }}" class="address-country-option" data-form-id="{{ form.id }}" name="address[country]" data-default="{{ form.country }}">{{ country_option_tags }}</select>
               </div>
             </div>
 

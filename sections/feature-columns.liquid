@@ -1,3 +1,6 @@
+{% include 'section-wrapper-styling' %}
+
+<div class="section-wrapper section-wrapper-{{ section.id }}{% if section.settings.text_light %} section-wrapper--text-light{% endif %}">
 <div class="page-width">
   {% if section.settings.title != blank %}
     <div class="section-header text-center">
@@ -7,49 +10,30 @@
 
   <div class="grid {% unless section.blocks.size == 5 %}grid--uniform{% endunless %} grid--flush-bottom">
     {%- assign grid_item_width = 'medium-up--one-third' -%}
-    {%- assign max_height = 345 -%}
+    {%- assign image_size = '345x' -%}
     {% case section.blocks.size %}
       {% when 1 %}
         {%- assign grid_item_width = 'medium-up--one-half' -%}
-        {%- assign max_height = 530 -%}
+        {%- assign image_size = '530x' -%}
       {% when 2 %}
         {%- assign grid_item_width = 'medium-up--one-half' -%}
-        {%- assign max_height = 530 -%}
+        {%- assign image_size = '530x' -%}
       {% when 4 %}
         {%- assign grid_item_width = 'medium-up--one-half' -%}
-        {%- assign max_height = 530 -%}
+        {%- assign image_size = '530x' -%}
     {% endcase %}
     {% for block in section.blocks %}
       {% if section.blocks.size == 5 and forloop.index < 3 %}
         {%- assign column_width = 'medium-up--one-half' -%}
-        {%- assign max_height = 530 -%}
       {% else %}
         {%- assign column_width = grid_item_width -%}
       {% endif %}
       <div class="grid__item {{ column_width }} text-{{ section.settings.align_text }}" {{ block.shopify_attributes }}>
         {% if block.settings.enable_image %}
           {% if block.settings.image != blank %}
-            {% capture img_id %}TextColumnImage-{{ block.id }}{% endcapture %}
-            {% capture wrapper_id %}TextColumnImageWrapper-{{ block.id }}{% endcapture %}
-            {%- assign img_url = block.settings.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-            {% include 'image-style' with image: block.settings.image, width: max_height, height: max_height, small_style: true, wrapper_id: wrapper_id, img_id: img_id %}
-            <div id="{{ wrapper_id }}" class="feature-row__image-wrapper js">
-              <div style="padding-top:{{ 1 | divided_by: block.settings.image.aspect_ratio | times: 100}}%;">
-                <img id="{{ img_id }}"
-                     class="feature-row__image lazyload"
-                     src="{{ block.settings.image | img_url: '300x300' }}"
-                     data-src="{{ img_url }}"
-                     data-widths="[180, 360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048]"
-                     data-aspectratio="{{ block.settings.image.aspect_ratio }}"
-                     data-sizes="auto"
-                     alt="{{ block.settings.image.alt | escape }}">
-              </div>
-            </div>
-            <noscript>
-              <p>
-                {{ block.settings.image | img_url: '480x480', scale: 2 | img_tag: block.settings.image.alt, 'feature-row__image' }}
-              </p>
-            </noscript>
+            <p>
+              {{ block.settings.image | img_url: '480x480' | img_tag: 'feature-row__image' }}
+            </p>
           {% else %}
             <p>
               {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
@@ -75,6 +59,7 @@
     {% include 'no-blocks' %}
   {% endif %}
 </div>
+</div>
 
 {% schema %}
   {
@@ -86,6 +71,16 @@
         "id": "title",
         "label": "Heading",
         "default": "Text columns with images"
+      },
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color"
+      },
+      {
+        "type": "checkbox",
+        "id": "text_light",
+        "label": "Light text"
       },
       {
         "type": "select",

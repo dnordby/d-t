@@ -1,0 +1,10 @@
+{%- if block.settings.show_first_paragraph %}
+  {{ product.description }}
+{% else %}
+  {%- assign description_parts = product.description | split: "<hr>" -%}
+  {%- for d in description_parts -%}
+    {%- if forloop.index > 1 -%}
+    {{ d }}
+    {%- endif -%}
+  {%- endfor -%}
+{% endif %}

@@ -1,11 +1,13 @@
-<div class="newsletter-section{% if section.settings.show_background %} index-section--newsletter-background{% endif %}">
+{% include 'section-wrapper-styling' %}
+
+<div class="section-wrapper section-wrapper-{{ section.id }}{% if section.settings.text_light %} section-wrapper--text-light{% endif %}">
   <div class="page-width text-center">
     <div class="section-header text-center">
-      {% if section.settings.section_title != blank %}
-        <label for="Email" class="h2">{{ section.settings.section_title | escape }}</label>
+      {% if section.settings.title != blank %}
+        <label for="Email" class="h2">{{ section.settings.title | escape }}</label>
       {% endif %}
-      {% if section.settings.subheading != blank %}
-        <p>{{ section.settings.subheading | escape }}</p>
+      {% if section.settings.subtitle != blank %}
+        <p>{{ section.settings.subtitle | escape }}</p>
       {% endif %}
     </div>
     {% form 'customer' %}
@@ -41,21 +43,25 @@
     "settings": [
       {
         "type": "text",
-        "id": "section_title",
+        "id": "title",
         "label": "Heading",
         "default": "Subscribe to our newsletter"
       },
       {
-        "type": "text",
-        "id": "subheading",
-        "label": "Subheading",
-        "default": "A short sentence describing what someone will receive by subscribing"
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color"
       },
       {
-        "id": "show_background",
         "type": "checkbox",
-        "label": "Show background",
-        "default": true
+        "id": "text_light",
+        "label": "Light text"
+      },
+      {
+        "type": "text",
+        "id": "subtitle",
+        "label": "Subtext",
+        "default": "A short sentence describing what someone will receive by subscribing"
       },
       {
         "type": "paragraph",
@@ -63,7 +69,7 @@
       }
     ],
     "presets": [{
-      "name": "Newsletter",
+      "name": "Newsletter signup",
       "category": "Promotional"
     }]
   }

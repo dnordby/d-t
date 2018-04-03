@@ -18,9 +18,7 @@ window.Modals = (function() {
     this.config = $.extend(defaults, options);
     this.modalIsOpen = false;
     // eslint-disable-next-line shopify/jquery-dollar-sign-reference
-    this.$focusOnOpen = this.config.focusOnOpen
-      ? $(this.config.focusOnOpen)
-      : this.$modal;
+    this.$focusOnOpen = this.config.focusOnOpen ? $(this.config.focusOnOpen) : this.$modal;
     this.init();
   }
 
@@ -110,14 +108,11 @@ window.Modals = (function() {
 
   Modal.prototype.bindEvents = function() {
     // Pressing escape closes modal
-    this.nodes.$parent.on(
-      'keyup.modal',
-      $.proxy(function(evt) {
-        if (evt.keyCode === 27) {
-          this.close();
-        }
-      }, this)
-    );
+    this.nodes.$parent.on('keyup.modal', $.proxy(function(evt) {
+      if (evt.keyCode === 27) {
+        this.close();
+      }
+    }, this));
   };
 
   Modal.prototype.unbindEvents = function() {

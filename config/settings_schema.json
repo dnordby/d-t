@@ -3,7 +3,7 @@
     "name": "theme_info",
     "theme_name": "Debut",
     "theme_author": "Shopify",
-    "theme_version": "2.2.0",
+    "theme_version": "1.2.1",
     "theme_documentation_url": "https:\/\/help.shopify.com\/manual\/using-themes\/themes-by-shopify\/debut",
     "theme_support_url": "https:\/\/support.shopify.com\/"
   },
@@ -94,11 +94,10 @@
         "type": "range",
         "id": "image_overlay_opacity",
         "label": "Opacity",
+        "default": 0.2,
+        "step": 0.1,
         "min": 0,
-        "max": 100,
-        "step": 1,
-        "unit": "%",
-        "default": 25
+        "max": 1
       },
       {
         "type": "header",
@@ -107,7 +106,13 @@
       {
         "type": "color",
         "id": "color_body_bg",
-        "label": "Background",
+        "label": "Body background color",
+        "default": "#fff"
+      },
+      {
+        "type": "color",
+        "id": "color_footer_bg",
+        "label": "Footer background color",
         "default": "#fff"
       }
     ]
@@ -680,16 +685,6 @@
     "settings": [
       {
         "type": "header",
-        "content": "Social sharing image"
-      },
-      {
-        "type": "image_picker",
-        "id": "share_image",
-        "label": "Image",
-        "info": "Shown when sharing a link on social media. [Learn more](https:\/\/help.shopify.com\/manual\/using-themes\/troubleshooting\/showing-social-media-thumbnail-images\/) about image thumbnails."
-      },
-      {
-        "type": "header",
         "content": "Social sharing options"
       },
       {
@@ -772,6 +767,21 @@
         "id": "favicon",
         "label": "Favicon image",
         "info": "Will be scaled down to 32 x 32px"
+      }
+    ]
+  },
+  {
+    "name": "Scripts",
+    "settings": [
+      {
+        "type": "textarea",
+        "id": "head_scripts",
+        "label": "Head scripts"
+      },
+      {
+        "type": "textarea",
+        "id": "footer_scripts",
+        "label": "Footer scripts"
       }
     ]
   }

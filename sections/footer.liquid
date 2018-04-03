@@ -19,11 +19,12 @@
   <div class="page-width">
     <div class="grid grid--no-gutters">
       <div class="grid__item{% if section.settings.footer_newsletter_enable and section.settings.footer_linklist_two != blank %} medium-up--one-quarter{% elsif section.settings.footer_linklist_two == blank and section.settings.footer_newsletter_enable %} medium-up--one-half{% else %} text-center{% endif %}">
-        {% if linklists[section.settings.footer_linklist].links.size > 0 %}
+        {%- assign footer_linklist = section.settings.footer_linklist -%}
+        {% if linklists[footer_linklist].links.size > 0 %}
           <ul class="site-footer__linklist{% unless section.settings.footer_newsletter_enable %} site-footer__linklist--center{% endunless %}">
-            {% for link in linklists[section.settings.footer_linklist].links %}
+            {% for link in linklists[footer_linklist].links %}
               <li class="site-footer__linklist-item">
-                <a href="{{ link.url }}"{% if link.active %} aria-current="page"{% endif %}>{{ link.title }}</a>
+                <a href="{{ link.url }}">{{ link.title }}</a>
               </li>
             {% endfor %}
           </ul>
@@ -31,11 +32,12 @@
       </div>
 
       <div class="grid__item{% if section.settings.footer_newsletter_enable and section.settings.footer_linklist != blank %} medium-up--one-quarter{% elsif section.settings.footer_linklist == blank and section.settings.footer_newsletter_enable %} medium-up--one-half{% else %} text-center{% endif %}">
-        {% if linklists[section.settings.footer_linklist_two].links.size > 0 %}
+        {%- assign footer_linklist_two = section.settings.footer_linklist_two -%}
+        {% if linklists[footer_linklist_two].links.size > 0 %}
           <ul class="site-footer__linklist{% unless section.settings.footer_newsletter_enable %} site-footer__linklist--center{% endunless %}">
-            {% for link in linklists[section.settings.footer_linklist_two].links %}
+            {% for link in linklists[footer_linklist_two].links %}
               <li class="site-footer__linklist-item">
-                <a href="{{ link.url }}"{% if link.active %} aria-current="page"{% endif %}>{{ link.title }}</a>
+                <a href="{{ link.url }}">{{ link.title }}</a>
               </li>
             {% endfor %}
           </ul>
@@ -157,13 +159,16 @@
       <div class="grid__item{% if section.settings.footer_newsletter_enable and social_icons == true %} medium-up--one-half{% else %} text-center{% endif %}">
         <div class="site-footer__copyright{% if social_icons and section.settings.footer_newsletter_enable != blank %} site-footer__copyright--right medium-up--text-right{% elsif social_icons == false and section.settings.footer_newsletter_enable %} medium-up--text-left{% endif %}">
           {% unless social_icons and section.settings.footer_newsletter_enable and section.settings.show_payment_icons %}
-            <small class="site-footer__copyright-content">&copy; {{ 'now' | date: "%Y" }}, {{ shop.name | link_to: '/' }}</small>
-            <small class="site-footer__copyright-content site-footer__copyright-content--powered-by">{{ powered_by_link }}</small>
+            <small class="site-footer__copyright-content">&copy;{{ 'now' | date: "%Y" }} {{ shop.name | link_to: '/' }}</small>
+            {%- if section.settings.show_theme_credits -%}
+            <small class="site-footer__copyright-content"><a href="https://lucid.co.nz" title="Shopify Plus Experts, New Zealand and New York">Website by Lucid</a></small>
+            <small class="site-footer__copyright-content site-footer__copyright-content--powered-by">{{ powered_by_link | replace: '">', '?ref=lucid-design">' }}</small>
+            {%- endif -%}
           {% endunless %}
           {% if section.settings.show_payment_icons %}
             <div class="site-footer__payment-icons{% unless social_icons or section.settings.footer_newsletter_enable == blank %} site-footer__payment-icons--right{% endunless %}">
               {% unless shop.enabled_payment_types == empty %}
-                {%- assign payment_icons_available = 'amazon_payments,american_express,apple_pay,bitcoin,cirrus,dankort,diners_club,discover,dogecoin,dwolla,forbrugsforeningen,interac,jcb,klarna,litecoin,maestro,master,paypal,stripe,shopify_pay,visa' | split: ',' -%}
+                {%- assign payment_icons_available = 'amazon_payments,american_express,apple_pay,bitcoin,cirrus,dankort,diners_club,discover,dogecoin,dwolla,forbrugsforeningen,interac,jcb,litecoin,maestro,master,paypal,stripe,visa' | split: ',' -%}
                 <ul class="payment-icons list--inline">
                   {% for type in shop.enabled_payment_types %}
                     {% if payment_icons_available contains type %}
@@ -182,8 +187,11 @@
     </div>
     {% if social_icons and section.settings.footer_newsletter_enable and section.settings.show_payment_icons %}
       <div class="site-footer__copyright--bottom">
-        <small class="site-footer__copyright-content">&copy; {{ 'now' | date: "%Y" }}, {{ shop.name | link_to: '/' }}</small>
-        <small class="site-footer__copyright-content">{{ powered_by_link }}</small>
+        <small class="site-footer__copyright-content">&copy;{{ 'now' | date: "%Y" }} {{ shop.name | link_to: '/' }}</small>
+        {%- if section.settings.show_theme_credits -%}
+        <small class="site-footer__copyright-content"><a href="https://lucid.co.nz" title="Shopify Plus Experts, New Zealand and New York">Website by Lucid</a></small>
+        <small class="site-footer__copyright-content">{{ powered_by_link | replace: '">', '?ref=lucid-design">' }}</small>
+        {%- endif -%}
       </div>
     {% endif %}
   </div>
@@ -197,15 +205,13 @@
         "type": "link_list",
         "id": "footer_linklist",
         "label": "Primary menu",
-        "default": "footer",
-        "info": "This menu won't show dropdown items"
+        "default": "footer"
       },
       {
         "type": "link_list",
         "id": "footer_linklist_two",
         "label": "Additional menu",
-        "default": "main-menu",
-        "info": "This menu won't show dropdown items"
+        "default": "main-menu"
       },
       {
         "type": "checkbox",
@@ -218,6 +224,12 @@
         "id": "show_payment_icons",
         "label": "Show payment icons",
         "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "show_theme_credits",
+        "label": "Show theme credits",
+        "default": true
       }
     ]
   }

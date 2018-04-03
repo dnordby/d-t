@@ -1,0 +1,27 @@
+<div class="description-tab__content" id="{{ tab_title | handle }}">
+  {%- assign tab_h3_count = 0 -%}
+  {%- assign tab_h3_contents_count = 0 -%}
+  {%- capture tab_h3_contents -%}{%- endcapture -%}
+  {%- assign tab_content_parts = tab_content | split: '<h3>' -%}
+  {%- for tab_content_part in tab_content_parts -%}
+  {%- assign tab_h3_content_parts = tab_content_part | split: '</h3>' -%}
+  {%- assign tab_h3 = tab_h3_content_parts | first -%}
+  {%- assign tab_h3_content = tab_h3_content_parts | last -%}
+  {%- if tab_h3 != blank and tab_h3_content != blank -%}
+  {%- assign tab_h3_contents_count = tab_h3_contents_count | plus: 1 -%}
+  {%- capture tab_h3_contents -%}
+  {{ tab_h3_contents }}
+  <div class="description-tab__sub-content{% if tab_h3 != tab_h3_content %} description-tab__sub-content--heading{% endif %}">
+    {%- if tab_h3 != tab_h3_content -%}
+    {%- assign tab_h3_count = tab_h3_count | plus: 1 -%}
+    <h3>{{ tab_h3 }}</h3>
+    {%- endif -%}
+    {{ tab_h3_content }}
+  </div>
+  {%- endcapture -%}
+  {%- endif -%}
+  {%- endfor -%}
+  <div class="description-tab__sub-contents" data-contents-count="{{ tab_h3_contents_count }}" data-heading-count="{{ tab_h3_count }}">
+    {{ tab_h3_contents }}
+  </div>
+</div>
