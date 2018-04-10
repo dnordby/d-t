@@ -1,0 +1,81 @@
+* {
+  outline: 0;
+  &:active, &:focus, &:hover {
+    outline: 0;
+  }
+}
+
+#quote-form {
+  display: block;
+  height: 100vh;
+  position: relative;
+  width: 100%;
+  .form-section {
+    display: block;
+    position: absolute;
+    top: 0;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+    z-index: 1;
+    &.hidden {
+      opacity: 0;
+      top: 2em;
+      z-index: 0;
+    }
+    .form-group {
+      align-items: stretch;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-bottom: 2em;
+      label {
+        width: 100%;
+      }
+      .inline-form-item {
+        &.garment-radio,
+        &.art-upload {
+          width: calc((100% / 3) - 1em);
+        }
+      }
+      .garment-color {
+        align-items: stretch;
+        display: flex;
+        flex-wrap: wrap;
+        .color-radio {
+          align-self: flex-start;
+          margin-bottom: 1.5em;
+          text-align: center;
+          width: calc((100% / 7) - 4px);
+          label {
+            font-weight: 500;
+            transition: all 0.3s ease-in-out;
+            &::before {
+              border: 1px solid #e8e9eb;
+              border-radius: 2px;
+              content: '';
+              display: block;
+              height: 40px;
+              margin: 0 auto;
+              position: relative;
+              transition: all 0.3s ease-in-out;
+              width: 40px;
+            }
+          }
+          &.active {
+            label {
+              font-weight: 900;
+              &::before {
+                border: 3px solid #e8e9eb;
+              }
+            }
+          }
+        }
+        @media (max-width: 639px) {
+          .color-radio {
+            width: calc((100% / 4) - 4px);
+          }
+        }
+      }
+    }
+  }
+}

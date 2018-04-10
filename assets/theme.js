@@ -2796,14 +2796,14 @@ theme.Airtable = (function(){
 
   });
 
-  // Visual/form update on radio color selections
-  $('.color-radio').click(function(){
-    $('.color-radio').each(function(){
-      $(this).removeClass('active');
-      $(this).find('input[type=radio]').attr("checked", false);
+  // Visual update on radio color selections
+  $(".color-radio").click(function(){
+    var newActive = $(this);
+    $(".color-radio").each(function(){
+      $(this).removeClass("active");
     });
-    $(this).addClass('active');
-    $(this).find('input[type=radio]').attr("checked", true);
+
+    $(newActive).addClass("active");
   });
 
   // Navigate between form steps
@@ -2815,8 +2815,32 @@ theme.Airtable = (function(){
   });
 
   function airTableCalls(formData, fn) {
-    console.log(formData);
-
+    var front_art_colors = 0;
+    var back_art_colors = 0;
+    var sleeve_art_colors = 0;
+    var garment_type = formData.filter(function(object){ return object.name == 'garment'; })[0].value;
+    var garment_quantity = formData.filter(function(object){ return object.name == 'quantity'; })[0].value;
+    var garment_color = formData.filter(function(object){ return object.name == 'garment_color'; })[0].value;
+    var deadline = formData.filter(function(object){ return object.name == 'deadline'; })[0].value;
+    var email = formData.filter(function(object){ return object.name == 'email'; })[0].value;
+    if ( document.querySelector('[type=file][name=front_art]').files[0] ) {
+      var front_art = document.querySelector('[type=file][name=front_art]').files[0];
+    }
+    if ( document.querySelector('[type=file][name=back_art]').files[0] ) {
+      var back_art = document.querySelector('[type=file][name=back_art]').files[0];
+    }
+    if ( document.querySelector('[type=file][name=sleeve_art]').files[0] ) {
+      var sleeve_art = document.querySelector('[type=file][name=sleeve_art]').files[0];
+    }
+    if (front_art && formData.filter(function(object){ return object.name == 'front_art_colors'; }).length > 0 ) {
+      front_art_colors = parseInt(formData.filter(function(object){ return object.name == 'front_art_colors'; })[0].value);
+    }
+    if (back_art && formData.filter(function(object){ return object.name == 'back_art_colors'; }).length > 0 ) {
+      back_art_colors = parseInt(formData.filter(function(object){ return object.name == 'back_art_colors'; })[0].value);
+    }
+    if (sleeve_art && formData.filter(function(object){ return object.name == 'sleeve_art_colors'; }).length > 0 ) {
+      sleeve_art_colors = parseInt(formData.filter(function(object){ return object.name == 'sleeve_art_colors'; })[0].value);
+    }
 
     function getUnitPrice(garment_quantity) {
       var table_param = encodeURIComponent('Cost Schedule');
@@ -2832,6 +2856,7 @@ theme.Airtable = (function(){
         dataType: 'json'
       });
     }
+
     function getSetupFees() {
       var table_param = encodeURIComponent('Schedule of Fees');
       var key = '?api_key=keyR2EbtbmWAbMerQ';
@@ -2844,64 +2869,84 @@ theme.Airtable = (function(){
       });
     }
 
-    var front_art_colors = 0;
-    var back_art_colors = 0;
-    var sleeve_art_colors = 0;
-    var garment_type = formData.filter(function(object){ return object.name == 'garment'; })[0].value;
-    var garment_quantity = formData.filter(function(object){ return object.name == 'quantity'; })[0].value;
-    var garment_color = formData.filter(function(object){ return object.name == 'garment_color'; })[0].value;
-    var deadline = formData.filter(function(object){ return object.name == 'deadline'; })[0].value;
-    var email = formData.filter(function(object){ return object.name == 'email'; })[0].value;
-    if ( document.querySelector('[type=file][name=front_art]').files[0] ) {
-      var front_art = document.querySelector('[type=file][name=front_art]').files[0];
-    }
-    if ( document.querySelector('[type=file][name=back_art]').files[0] ) {
-      var back_art = document.querySelector('[type=file][name=back_art]').files[0];
-    }
-    if ( document.querySelector('[type=file][name=back_art]').files[0] ) {
-      var sleeve_art = document.querySelector('[type=file][name=back_art]').files[0];
-    }
-    if (front_art && formData.filter(function(object){ return object.name == 'front_art_colors'; }).length > 0 ) {
-      front_art_colors = parseInt(formData.filter(function(object){ return object.name == 'front_art_colors'; })[0].value);
-    }
-    if (back_art && formData.filter(function(object){ return object.name == 'back_art_colors'; }).length > 0 ) {
-      back_art_colors = parseInt(formData.filter(function(object){ return object.name == 'back_art_colors'; })[0].value);
-    }
-    if (sleeve_art && formData.filter(function(object){ return object.name == 'sleeve_art_colors'; }).length > 0 ) {
-      sleeve_art_colors = parseInt(formData.filter(function(object){ return object.name == 'sleeve_art_colors'; })[0].value);
+    function getRushFees() {
+      var table_param = encodeURIComponent('Rush');
+      var key = '?api_key=keyR2EbtbmWAbMerQ';
+      var url = base_url + table_param + key;
+
+      return $.ajax({
+        url: url,
+        method: 'GET',
+        dataType: 'json'
+      });
     }
 
-    // Initialize calls
+    // // Initialize calls
     var unitPrice = getUnitPrice(garment_quantity);
     var setupFees = getSetupFees();
+    var rushFees = getRushFees();
 
     // Initialize queue
-    $.when(unitPrice, setupFees).done(function(unitPriceData, setupFeesData){
+    $.when(unitPrice, setupFees, rushFees).done(function(unitPriceData, setupFeesData, rushFees){
       var unitCog = 0.0;
+      var screenPrice = 0.0;
+      var setupCost = 0.0;
+      var rushCost = 0.0;
       var totalCog = 0.0;
-      var unitRecord = unitPriceData.records[0].fields;
+      var averageCost = 0.0;
+      var unitRecord = unitPriceData[0].records[0].fields;
+      var screenFees = setupFeesData[0].records[0].fields;
+      var setupFees = setupFeesData[0].records[1].fields;
+      var rushFees = rushFees[0].records[0].fields;
 
-      if (front_art_colors != 0) {
+      var oneDay = 1000*60*60*24;
+      var dateToday = new Date();
+      var deadlineDate = new Date(deadline);
+      console.log(dateToday);
+      console.log(deadlineDate);
+      var daysAway = Math.round((deadlineDate - dateToday) / oneDay);
+
+      if (daysAway <= 6) {
+        var dayString = '';
+        if (daysAway == 1) {
+          dayString = daysAway.toString() + ' Day';
+        } else if (daysAway < 1) {
+          console.log('ORDER CANNOT BE PROCESED');
+        } else {
+          dayString = daysAway.toString() + ' Days';
+        }
+
+        if (dayString != '') {
+          rushCost = parseFloat(rushFees[dayString].toString().replace('$',''));
+        }
+      }
+
+      console.log(rushCost);
+
+      if (front_art_colors > 0) {
         var unitFrontCost = parseFloat(unitRecord[front_art_colors.toString() + '-color'].replace('$',''));
+        screenPrice += parseFloat(screenFees[front_art_colors.toString()].toString().replace('$',''));
+        setupCost += parseFloat(setupFees[front_art_colors.toString()].toString().replace('$',''));
         unitCog += unitFrontCost;
       }
-      if (back_art_colors != 0) {
+      if (back_art_colors > 0) {
         var unitBackCost = parseFloat(unitRecord[back_art_colors.toString() + '-color'].replace('$',''));
+        screenPrice += parseFloat(screenFees[back_art_colors.toString()].toString().replace('$',''));
+        setupCost += parseFloat(setupFees[back_art_colors.toString()].toString().replace('$',''));
         unitCog += unitBackCost;
       }
-      if (sleeve_art_colors !=0) {
+      if (sleeve_art_colors > 0) {
         var unitSleeveCost = parseFloat(unitRecord[sleeve_art_colors.toString() + '-color'].replace('$',''));
+        screenPrice += parseFloat(screenFees[sleeve_art_colors.toString()].toString().replace('$',''));
+        setupCost += parseFloat(setupFees[sleeve_art_colors.toString()].toString().replace('$',''));
         unitCog += unitSleeveCost;
       }
-      totalCog = unitCog * garment_quantity;
-      
 
-      // var screenFees = setupFeesData.records;
-      // var setupFees = ;
-      console.log(setupFeesData);
+      unitCog = parseFloat(unitCog.toFixed(2));
+      totalCog = parseFloat((unitCog * garment_quantity) + screenPrice + setupCost);                // TOTAL QUOTE COST
+      averageCost = '$' + (totalCog.toFixed(2) / garment_quantity).toFixed(2);                      // AVERAGE COST PER UNIT ESTIMATED
 
-
-      // fn(unitPriceData, colorCountFormatted);
+      fn(averageCost);
     });
   }
 
@@ -2909,11 +2954,11 @@ theme.Airtable = (function(){
 
 
 
-  $('.quote-form').submit(function(e){
+  $('#quote-form').submit(function(e){
     e.preventDefault();
     var data = $(this).serializeArray();
-    var pricePerUnit = airTableCalls(data, function(airtableData){
-      console.log(airtableData);
+    var pricePerUnit = airTableCalls(data, function(avgUnitCost){
+      console.log(avgUnitCost);
     });
   });
 
