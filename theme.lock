@@ -2,7 +2,7 @@
 assets/ajax-loader.gif:
   development: 2018-03-20T12:29:28-04:00   deca8b0ecd6974227d157b6d7068995d
 assets/dormtshirts.scss.liquid:
-  development: 2018-04-09T21:05:16-04:00   12a696c40d0789545b79c391834597f6
+  development: 2018-04-16T20:31:04-04:00   202f6017db96abb4c3dad947e85dd3e0
 assets/gift-card.js:
   development: 2018-04-03T19:10:55-04:00   d98dc5c9afcd8397babfd08c06e9899a
 assets/gift-card.scss.liquid:
@@ -16,7 +16,7 @@ assets/match-media.min.js:
 assets/password.js:
   development: 2018-04-03T19:10:45-04:00   c6b4c16234704306bbb6129d04d7e78e
 assets/theme.js:
-  development: 2018-04-10T13:32:09-04:00   b538977b2b3b89af83fd006149e419c1
+  development: 2018-04-16T21:46:25-04:00   0fcce3788f74e72b4b8d77f47cb64d07
 assets/theme.scss.liquid:
   development: 2018-04-03T19:33:59-04:00   b444d2437d5ad9ab12ac0e80bd60da6d
 assets/vendor.js:
@@ -30,7 +30,7 @@ layout/gift_card.liquid:
 layout/password.liquid:
   development: 2018-04-03T19:11:07-04:00   f403680b0aa8921493e38dac1f82d270
 layout/theme.liquid:
-  development: 2018-04-09T20:09:41-04:00   fc756cbbd91654bc3e81a66c70148a99
+  development: 2018-04-16T20:28:41-04:00   9f5ff9105b1cc5c517316be8986b667d
 locales/de.json:
   development: 2018-04-03T19:11:26-04:00   573aafe6f0d5eeb69c7edf598c7e450f
 locales/en.default.json:
@@ -201,6 +201,8 @@ snippets/icon-visa.liquid:
   development: 2018-03-20T12:29:33-04:00   9098533cd59e385d2672f6d8b7fa4b04
 snippets/icon-youtube.liquid:
   development: 2018-03-20T12:29:33-04:00   9d72c5bc3eaa14a3e7aefd921881b1ae
+snippets/loader.liquid:
+  development: 2018-04-16T20:14:13-04:00   f96529850b0fbfb0300923e40ced3651
 snippets/no-blocks.liquid:
   development: 2018-03-20T12:29:33-04:00   0cb7d758b6df0feb07ae5804b4b627fa
 snippets/pagination.liquid:
@@ -216,7 +218,7 @@ snippets/product-price.liquid:
 snippets/product-tab-content.liquid:
   development: 2018-04-03T19:10:49-04:00   2e9b396b15fd32c7218451d9fe47f919
 snippets/quote-form.liquid:
-  development: 2018-04-10T11:58:09-04:00   dadcef5d07a810b33071cf4b2a227a87
+  development: 2018-04-16T20:33:49-04:00   b185b7faa54acdcb276dbd3f7deb54ff
 snippets/search-form.liquid:
   development: 2018-03-20T12:29:34-04:00   28a50f2542fd28c27fd3eb50ae816c46
 snippets/section-wrapper-styling.liquid:
