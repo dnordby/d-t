@@ -55,7 +55,7 @@
       <label for="front_art_colors">How many colors is the front art?</label>
       <select name="front_art_colors" data-set="front">
         {% for color_count in art_colors %}
-          <option value="{{ color_count }}">{{ color_count }}</option>
+          <option value="{% if color_count == 'None' %}0{% else %}{{ color_count }}{% endif %}">{{ color_count }}</option>
         {% endfor %}
       </select>
     </div>
@@ -64,7 +64,7 @@
       <label for="back_art_colors">How many colors is the back art?</label>
       <select name="back_art_colors" data-set="back">
         {% for color_count in art_colors %}
-          <option value="{{ color_count }}">{{ color_count }}</option>
+          <option value="{% if color_count == 'None' %}0{% else %}{{ color_count }}{% endif %}">{{ color_count }}</option>
         {% endfor %}
       </select>
     </div>
@@ -73,7 +73,7 @@
       <label for="sleeve_art_colors">How many colors is the sleeve art?</label>
       <select name="sleeve_art_colors" data-set="sleeve">
         {% for color_count in sleeve_art_colors %}
-          <option value="{{ color_count }}">{{ color_count }}</option>
+          <option value="{% if color_count == 'None' %}0{% else %}{{ color_count }}{% endif %}">{{ color_count }}</option>
         {% endfor %}
       </select>
     </div>
@@ -97,5 +97,12 @@
     </div>
     <a href="#" class="btn js-step-trigger-back" data-step="1">Back</a>
     <button class="btn js-step-trigger-final">Send</button>
+  </div>
+
+
+  {% comment %} THANK YOU SECTION {% endcomment %}
+  <div class="form-section hidden" data-step="3">
+    <p class="h2">Your detailed quote is on the way!</p>
+    <p class="h4">We will be in touch with you shortly to finalize the details. Thanks for your interest!</p>
   </div>
 </form>

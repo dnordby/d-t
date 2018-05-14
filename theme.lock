@@ -2,7 +2,7 @@
 assets/ajax-loader.gif:
   development: 2018-03-20T12:29:28-04:00   deca8b0ecd6974227d157b6d7068995d
 assets/dormtshirts.scss.liquid:
-  development: 2018-04-16T20:31:04-04:00   202f6017db96abb4c3dad947e85dd3e0
+  development: 2018-04-21T16:07:38-04:00   956cfc389a6b65837652d3b70b6dbf85
 assets/gift-card.js:
   development: 2018-04-03T19:10:55-04:00   d98dc5c9afcd8397babfd08c06e9899a
 assets/gift-card.scss.liquid:
@@ -16,7 +16,7 @@ assets/match-media.min.js:
 assets/password.js:
   development: 2018-04-03T19:10:45-04:00   c6b4c16234704306bbb6129d04d7e78e
 assets/theme.js:
-  development: 2018-04-16T21:46:25-04:00   0fcce3788f74e72b4b8d77f47cb64d07
+  development: 2018-05-13T20:04:12-04:00   0596e45de2a935f894286cc0cd490e24
 assets/theme.scss.liquid:
   development: 2018-04-03T19:33:59-04:00   b444d2437d5ad9ab12ac0e80bd60da6d
 assets/vendor.js:
@@ -218,7 +218,7 @@ snippets/product-price.liquid:
 snippets/product-tab-content.liquid:
   development: 2018-04-03T19:10:49-04:00   2e9b396b15fd32c7218451d9fe47f919
 snippets/quote-form.liquid:
-  development: 2018-04-16T20:33:49-04:00   b185b7faa54acdcb276dbd3f7deb54ff
+  development: 2018-05-13T20:02:14-04:00   08a33c1a4c625cf3e510b79624281d4f
 snippets/search-form.liquid:
   development: 2018-03-20T12:29:34-04:00   28a50f2542fd28c27fd3eb50ae816c46
 snippets/section-wrapper-styling.liquid:

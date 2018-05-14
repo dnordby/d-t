@@ -2908,36 +2908,75 @@ theme.Airtable = (function(){
       totalCog = parseFloat((unitCog * garment_quantity) + screenPrice + setupCost + rushCost).toFixed(2);
       averageCost = (totalCog / garment_quantity).toFixed(2);
 
-      fn(averageCost);
+      fn(unitCog, screenPrice, setupCost, rushCost, averageCost);
     });
   }
 
-  function airTablePosts(formData, fn) {
+  function airTablePosts(data, fn) {
+    var form = data.form;
+    var unit = parseFloat(data.unit);
+    var screen = parseFloat(data.screen);
+    var setup = parseFloat(data.setup);
+    var rush = parseFloat(data.rush);
+    var rush_order = false;
+    var front_art = '';
+    var back_art = '';
+    var sleeve_art = '';
     var front_art_colors = 0;
     var back_art_colors = 0;
     var sleeve_art_colors = 0;
-    var garment_type = formData.filter(function(object){ return object.name == 'garment'; })[0].value;
-    var garment_quantity = formData.filter(function(object){ return object.name == 'quantity'; })[0].value;
-    var garment_color = formData.filter(function(object){ return object.name == 'garment_color'; })[0].value;
-    var deadline = formData.filter(function(object){ return object.name == 'deadline'; })[0].value;
-    var email = formData.filter(function(object){ return object.name == 'email'; })[0].value;
+    var garment_type = form.filter(function(object){ return object.name == 'garment'; })[0].value;
+    var garment_quantity = parseInt(form.filter(function(object){ return object.name == 'quantity'; })[0].value);
+    var garment_color = form.filter(function(object){ return object.name == 'garment_color'; })[0].value;
+    var deadline = form.filter(function(object){ return object.name == 'deadline'; })[0].value;
+    var email = form.filter(function(object){ return object.name == 'email'; })[0].value;
+    var art_location = [];
+    var art_cost = parseFloat((screen + setup) / garment_quantity).toFixed(2);
+    if (form.filter(function(object){ return object.name == 'front_art_colors'; }).length > 0 ) {
+      front_art_colors = parseInt(form.filter(function(object){ return object.name == 'front_art_colors'; })[0].value);
+    }
+    if (form.filter(function(object){ return object.name == 'back_art_colors'; }).length > 0 ) {
+      back_art_colors = parseInt(form.filter(function(object){ return object.name == 'back_art_colors'; })[0].value);
+    }
+    if (form.filter(function(object){ return object.name == 'sleeve_art_colors'; }).length > 0 ) {
+      sleeve_art_colors = parseInt(form.filter(function(object){ return object.name == 'sleeve_art_colors'; })[0].value);
+    }
+
     if ( document.querySelector('[type=file][name=front_art]').files[0] ) {
-      var front_art = document.querySelector('[type=file][name=front_art]').files[0];
+      let file = document.querySelector('[type=file][name=front_art]').files[0];
+      let reader  = new FileReader();
+      if (file) {
+        reader.readAsDataURL(file);
+      }
+      reader.addEventListener("loadend", function () {
+        front_art = reader.result;
+      });
+      art_location.push('Front');
     }
     if ( document.querySelector('[type=file][name=back_art]').files[0] ) {
-      var back_art = document.querySelector('[type=file][name=back_art]').files[0];
+      let file = document.querySelector('[type=file][name=back_art]').files[0];
+      let reader  = new FileReader();
+      if (file) {
+        reader.readAsDataURL(file);
+      }
+      reader.addEventListener("loadend", function () {
+        back_art = reader.result;
+      });
+      art_location.push('Back');
     }
     if ( document.querySelector('[type=file][name=sleeve_art]').files[0] ) {
-      var sleeve_art = document.querySelector('[type=file][name=sleeve_art]').files[0];
+      let file = document.querySelector('[type=file][name=sleeve_art]').files[0];
+      let reader  = new FileReader();
+      if (file) {
+        reader.readAsDataURL(file);
+      }
+      reader.addEventListener("loadend", function () {
+        sleeve_art = reader.result;
+      });
+      art_location.push('Sleeve');
     }
-    if (front_art && formData.filter(function(object){ return object.name == 'front_art_colors'; }).length > 0 ) {
-      front_art_colors = parseInt(formData.filter(function(object){ return object.name == 'front_art_colors'; })[0].value);
-    }
-    if (back_art && formData.filter(function(object){ return object.name == 'back_art_colors'; }).length > 0 ) {
-      back_art_colors = parseInt(formData.filter(function(object){ return object.name == 'back_art_colors'; })[0].value);
-    }
-    if (sleeve_art && formData.filter(function(object){ return object.name == 'sleeve_art_colors'; }).length > 0 ) {
-      sleeve_art_colors = parseInt(formData.filter(function(object){ return object.name == 'sleeve_art_colors'; })[0].value);
+    if (rush > 0.00) {
+      rush_order = true;
     }
 
     function postLead() {
@@ -2947,25 +2986,179 @@ theme.Airtable = (function(){
       var data =  {
                     "fields": {
                       "Email": email,
-                      "Quantity": parseInt(garment_quantity),
+                      "Quantity": garment_quantity,
                       "Deadline": deadline
                     }
                   }
-      console.log(data);
+
       return $.ajax({
         url: url,
         method: 'POST',
-        data: data,
-        dataType: 'application/json'
+        data: JSON.stringify(data),
+        dataType: 'json',
+        contentType: 'application/json'
       });
     }
 
-    var lead = postLead();
+    function postQuote() {
+      var table_param = encodeURIComponent('Quotes');
+      var key = '?api_key=keyR2EbtbmWAbMerQ';
+      var url = base_url + table_param + key;
+      var data =  {
+                    "fields": {
+                      "Garment Color": garment_color,
+                      "Quantity": garment_quantity,
+                      "Deadline": deadline,
+                      "Art Location": art_location,
+                      "Markup %": 180,
+                      "Garment Cost": unit.toFixed(2).toString(),
+                      "Art Cost": art_cost.toString(),
+                      "Rush": rush_order,
+                      "Rush Cost": rush
+                    },
+                    "typecast": true
+                  }
 
-    $.when(lead).done(function(leadData){
-      console.log(leadData);
-    }).fail(function(jqXHR, textStatus, errorThrown){
-      console.log(jqXHR.responseText);
+      return $.ajax({
+        url: url,
+        method: 'POST',
+        data: JSON.stringify(data),
+        dataType: 'json',
+        contentType: 'application/json'
+      });
+    }
+
+    function postArt(quoteId,leadId) {
+      var table_param = encodeURIComponent('Art');
+      var key = '?api_key=keyR2EbtbmWAbMerQ';
+      var url = base_url + table_param + key;
+
+      function getImgUrl(file) {
+        if (file != '') {
+          var form = new FormData();
+          form.append("image", file.split('base64,')[1]);
+
+          return $.ajax({
+            "async": true,
+            "crossDomain": true,
+            "url": "https://api.imgur.com/3/image",
+            "method": "POST",
+            "headers": {
+              "Authorization": "Client-ID d30d31a907b7e76"
+            },
+            "processData": false,
+            "contentType": false,
+            "mimeType": "multipart/form-data",
+            "data": form
+          });
+        } else {
+          return ''
+        }
+      }
+
+      var front_url = getImgUrl(front_art);
+      var back_url = getImgUrl(back_art);
+      var sleeve_url = getImgUrl(sleeve_art);
+
+      $.when(front_url, back_url, sleeve_url).done(function(frontUrlData, backUrlData, sleeveUrlData){
+        if (frontUrlData != '') {
+          var front_url = JSON.parse(frontUrlData[0]).data.link || '';
+        } else {
+          var front_url = '';
+        }
+        if (backUrlData != '') {
+          var back_url = JSON.parse(backUrlData[0]).data.link || '';
+        } else {
+          var back_url = '';
+        }
+        if (sleeveUrlData != '') {
+          var sleeve_url = JSON.parse(sleeveUrlData[0]).data.link || '';
+        } else {
+          var sleeve_url = '';
+        }
+        
+        var artData =   {
+                          "fields": {
+                            "Front Colors": front_art_colors,
+                            "Back Colors": back_art_colors,
+                            "Sleeve Colors": sleeve_art_colors,
+                            "Quote ID": [quoteId],
+                            "Lead ID": [leadId]
+                          },
+                          "typecast": true
+                        }
+        if (front_url != '') {
+          artData.fields["Front Art"] = front_url;
+        }
+        if (back_url != '') {
+          artData.fields["Back Art"] = back_url;
+        }
+        if (sleeve_url != '') {
+          artData.fields["Sleeve Art"] = sleeve_url;
+        }
+
+        function updateLead(quoteId,leadId) {
+          var table_param = encodeURIComponent('Leads');
+          var key = '?api_key=keyR2EbtbmWAbMerQ';
+          var url = base_url + table_param + '/' + leadId + key;
+          var data =  {
+                        "fields": {
+                          "Quotes": [quoteId]
+                        },
+                        "typecast": true
+                      }
+          $.ajax({
+            url: url,
+            method: 'PATCH',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            contentType: 'application/json'
+          }).fail(function(a,b,c){
+            console.log(a);
+            console.log(b);
+            console.log(c);
+          });
+        }
+        function updateQuote(quoteId,leadId) {
+          var table_param = encodeURIComponent('Quotes');
+          var key = '?api_key=keyR2EbtbmWAbMerQ';
+          var url = base_url + table_param + '/' + quoteId + key;
+          var data =  {
+                        "fields": {
+                          "Leads": [leadId]
+                        },
+                        "typecast": true
+                      }
+          $.ajax({
+            url: url,
+            method: 'PATCH',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            contentType: 'application/json'
+          });
+        }
+
+        $.ajax({
+          url: url,
+          method: 'POST',
+          data: JSON.stringify(artData),
+          dataType: 'json',
+          contentType: 'application/json'
+        }).done(function(data){
+          updateLead(quoteId,leadId);
+          updateLead(quoteId,leadId);
+        });
+      });
+      
+    }
+
+    var lead = postLead();
+    var quote = postQuote();
+
+    $.when(lead, quote).done(function(leadData, quoteData){
+      var leadId = leadData[0].id;
+      var quoteId = quoteData[0].id;
+      postArt(quoteId,leadId);
     });
   }
 
@@ -3027,17 +3220,39 @@ theme.Airtable = (function(){
   $('#quote-form').submit(function(e){
     e.preventDefault();
     var data = $(this).serializeArray();
-    airTableCalls(data, function(avgUnitCost){
-      $('.js-unit-price').text(avgUnitCost);
-    });
-  });
+    airTableCalls(data, function(unitCog, screenPrice, setupCost, rushCost, averageCost){
+      $('.js-unit-price').text(averageCost);
 
-  // FULL SUBMISSION
-  $('.js-step-trigger-final').click(function(e){
-    e.preventDefault();
-    var data = $(this).closest('#quote-form').serializeArray();
-    airTablePosts(data, function(successMessage){
-      
+      // FULL SUBMISSION
+      $('.js-step-trigger-final').click(function(e){
+        e.preventDefault();
+        var data = {
+          form: $(this).closest('#quote-form').serializeArray(),
+          unit: unitCog,
+          screen: screenPrice,
+          setup: setupCost,
+          rush: rushCost
+        }
+        airTablePosts(data, function(successMessage){
+          
+        });
+
+        $('.btn').each(function(){
+          $(this).prop('disabled', true);
+        });
+        var showThankYou = $('.form-section[data-step=3]');
+        $('.loader').removeClass('hidden');
+        setTimeout(function(){
+          window.scrollTo(0, 0);
+          $('.form-section').each(function(){
+            $(this).addClass('hidden');
+          });
+          $(showThankYou).removeClass('hidden');
+        },300);
+        setTimeout(function(){
+          $('.loader').addClass('hidden');
+        },750);
+      });
     });
   });
 
