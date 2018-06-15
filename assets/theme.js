@@ -3163,24 +3163,12 @@ theme.Airtable = (function(){
   }
 
 
-  // Visual replacement of garment type on radio selections
+  // Visual update on radio garment selections
   $('.garment-radio label').click(function(){
-    $('.garment-radio input').each(function(){
-      $(this).attr('checked', false);
-    });
-    $(this).prev().attr('checked', true);
-    var value = $(this).prev().val();
-    if ( value.toLowerCase() == 'something else' ) {
-      value = 'garment';
-    }
     $('.garment-radio').each(function(){
       $(this).find('label').addClass('btn--secondary');
     });
     $(this).removeClass('btn--secondary');
-    $('.js-garment-type').each(function(){
-      $(this).text(value);
-    });
-
   });
 
   // Visual update on radio color selections
@@ -3189,31 +3177,60 @@ theme.Airtable = (function(){
     $(".color-radio").each(function(){
       $(this).removeClass("active");
     });
-
     $(newActive).addClass("active");
   });
 
+  function navigateForm(step) {
+    var step = step;
+    $('.quote-menu li').each(function(){
+      $(this).removeClass('active');
+    });
+    $('.quote-menu li[data-step=' + step + ']').addClass('active');
+
+    $('.form-section').each(function(){
+      $(this).addClass('hidden');
+    });
+    $('.form-section[data-step=' + step + ']').removeClass('hidden');
+
+    if (step == 'garment') {
+      $('.js-step-trigger-back').addClass('visually-hidden');
+      $('.js-step-trigger-next').removeClass('visually-hidden');
+      $('.js-step-trigger-final').addClass('visually-hidden');
+    } else if (step == 'get-quote') {
+      $('.js-step-trigger-back').removeClass('visually-hidden');
+      $('.js-step-trigger-next').addClass('visually-hidden');
+      $('.js-step-trigger-final').removeClass('visually-hidden');
+    } else {
+      $('.js-step-trigger-back').removeClass('visually-hidden');
+      $('.js-step-trigger-next').removeClass('visually-hidden');
+      $('.js-step-trigger-final').addClass('visually-hidden');
+    }
+  }
+
   // Navigate between form steps
+  navigateForm('garment');
   $('.js-step-trigger-next').click(function(){
-    var nextStep = $(this).data('step');
-    var currentStep = $(this).closest('.form-section').data('step');
-    var showIfValid = $('.form-section[data-step=' + nextStep + ']');
-    validateSection(currentStep, showIfValid);
+    var step = $('.quote-menu').find('.active').next().data('step');
+    if (step != undefined && step != 'undefined') {
+      navigateForm(step);
+    }
   });
   $('.js-step-trigger-back').click(function(){
-    var backStep = $(this).data('step');
-    var showBack = $('.form-section[data-step=' + backStep + ']');
-    $('.loader').removeClass('hidden');
-    setTimeout(function(){
-      window.scrollTo(0, 0);
-      $('.form-section').each(function(){
-        $(this).addClass('hidden');
-      });
-      $(showBack).removeClass('hidden');
-    },300);
-    setTimeout(function(){
-      $('.loader').addClass('hidden');
-    },750);
+    var step = $('.quote-menu').find('.active').prev().data('step');
+    if (step != undefined && step != 'undefined') {
+      navigateForm(step);
+    }
+  });
+  $('.quote-menu li').click(function(){
+    var step = $(this).data('step');
+    navigateForm(step);
+  });
+
+  // Expand accordions
+  $('.accordion-item .h4').click(function(){
+    var target = $(this).data('toggle');
+    $('.expandable[data-target=' + target + ']').toggleClass('open');
+    $(this).toggleClass('open');
   });
 
   // CRUNCH THE NUMBERS

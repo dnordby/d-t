@@ -1,13 +1,21 @@
-{% assign garments = 'T-Shirt, Hoodie, Something Else' | split: ', ' %}
+{% assign garments = 'T-Shirt 1, T-Shirt 2, Hoodie 1, Hoodie 2' | split: ', ' %}
 {% assign quantity = '12, 24, 48, 96, 150, 300, 500, 750, 1000' | split: ', ' %}
 {% assign art_options = 'Front, Back, Sleeve' | split: ', ' %}
 {% assign art_colors = 'None, 1, 2, 3, 4, 5, 6, 7, 8' | split: ', ' %}
 {% assign sleeve_art_colors = 'None, 1, 2' | split: ', ' %}
+{% assign init_step = 'garment' %}
+
+<div class="quote-menu">
+  <ul>
+    {% for step in linklists.quote-menu.links %}
+      <li data-step="{{ step.title | downcase | handleize }}" {% if forloop.first == true %}class="active"{% endif %}>{{ step.title }}</li>
+    {% endfor %}
+  </ul>
+</div>
 
 <form id="quote-form">
-  {% comment %} FIRST SECTION {% endcomment %}
-  <div class="form-section" data-step="0">  
-
+  {% comment %} GARMENT SECTION {% endcomment %}
+  <div class="form-section" data-step="garment">
     <div class="form-group">
       <label>What kind of garment are you looking for?</label>
       {% for garment in garments %}
@@ -17,92 +25,64 @@
         </div>
       {% endfor %}
     </div>
-
     <div class="form-group">
-      <label for="quantity">How many <span class="js-garment-type">{{ garments | first }}</span>s are you looking for?</label>
+      {% section 'colors' %}
+    </div>
+  </div>
+
+  {% comment %} ART SECTION {% endcomment %}
+  <div class="form-section hidden accordion" data-step="art">
+    <div class="form-group">
+      {% for art in art_options %}
+        <div class="accordion-item">
+          <p class="h4" data-toggle="{{ art | downcase }}">{{ art }}</p>
+          <div class="inline-form-item art-upload expandable" data-target="{{ art | downcase }}">
+            <p>Don't worry about exactness! This is just for quoting purposes.</p>
+            <label for="{{ art | downcase }}_art">Upload an image</label>
+            <input type="file" name="{{ art | downcase }}_art" id="{{ art | downcase }}_art" data-set="{{ art_img }}">
+            <label for="{{ art | downcase }}_text">Add text</label>
+            <input type="text" name="{{ art | downcase }}_text" id="{{ art | downcase }}_text" data-set="{{ art_text }}">
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  
+  {% comment %} QUANTITY SECTION {% endcomment %}
+  <div class="form-section hidden" data-step="quantity">
+    <div class="form-group">
+      <label for="quantity">How many do you need?</label>
       <select name="quantity">
         {% for number in quantity %}
           <option value="{{ number }}"{% if forloop.first == true%} required{% endif %}>{{ number }}</option>
         {% endfor %}
       </select>
     </div>
+  </div>
 
+  {% comment %} DATE SECTION {% endcomment %}
+  <div class="form-section hidden" data-step="date">
     <div class="form-group">
       <div class="error-message">This field is required.</div>
       <label for="deadline">When do you need them by?</label>
       <input type="date" name="deadline" min="{{ 'today' | date: '%s' | plus: 86400 | date: '%Y-%m-%d' }}" required>
     </div>
-
-    <div class="form-group">
-      <div class="error-message">At least one file must be uploaded.</div>
-      {% for art in art_options %}
-        <div class="inline-form-item art-upload">
-          <label for="{{ art | downcase }}_art">{{ art }} Art</label>
-          <input type="file" name="{{ art | downcase }}_art" id="{{ art | downcase }}_art" data-set="{{ art }}">
-        </div>
-      {% endfor %}
-    </div>
-    <a href="#" class="btn js-step-trigger-next" data-step="1">Next</a>
-
   </div>
 
 
-
-  {% comment %} SECOND SECTION {% endcomment %}
-  <div class="form-section hidden" data-step="1">
-
-    <div class="form-group">
-      <label for="front_art_colors">How many colors is the front art?</label>
-      <select name="front_art_colors" data-set="front">
-        {% for color_count in art_colors %}
-          <option value="{% if color_count == 'None' %}0{% else %}{{ color_count }}{% endif %}">{{ color_count }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="back_art_colors">How many colors is the back art?</label>
-      <select name="back_art_colors" data-set="back">
-        {% for color_count in art_colors %}
-          <option value="{% if color_count == 'None' %}0{% else %}{{ color_count }}{% endif %}">{{ color_count }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="sleeve_art_colors">How many colors is the sleeve art?</label>
-      <select name="sleeve_art_colors" data-set="sleeve">
-        {% for color_count in sleeve_art_colors %}
-          <option value="{% if color_count == 'None' %}0{% else %}{{ color_count }}{% endif %}">{{ color_count }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <div class="form-group">
-      {% section 'colors' %}
-    </div>
-    <a href="#" class="btn js-step-trigger-back" data-step="0">Back</a>
-    <button type="submit" class="btn js-step-trigger-next" data-step="2">Crunch the Numbers</button>
-
-  </div>
-
-
-  {% comment %} THIRD SECTION {% endcomment %}
-  <div class="form-section hidden" data-step="2">
+  {% comment %} QUOTE SECTION {% endcomment %}
+  <div class="form-section hidden" data-step="get-quote">
     <h2>$<span class="js-unit-price"></span> per <span class="js-garment-type">{{ garments | first }}</span></h2>
     <p class="h4">Your detailed quote is ready!</p>
     <div class="form-group">
       <label for="email">What's your email?</label>
       <input type="email" name="email">
     </div>
-    <a href="#" class="btn js-step-trigger-back" data-step="1">Back</a>
-    <button class="btn js-step-trigger-final">Send</button>
   </div>
 
-
-  {% comment %} THANK YOU SECTION {% endcomment %}
-  <div class="form-section hidden" data-step="3">
-    <p class="h2">Your detailed quote is on the way!</p>
-    <p class="h4">We will be in touch with you shortly to finalize the details. Thanks for your interest!</p>
+  <div class="direction">
+    <div class="prev-step btn js-step-trigger-back">Back</div>
+    <div class="next-step btn js-step-trigger-next">Next</div>
+    <button class="btn js-step-trigger-final">Get Quote!</button>
   </div>
 </form>

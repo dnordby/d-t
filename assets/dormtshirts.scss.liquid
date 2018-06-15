@@ -5,6 +5,20 @@
   }
 }
 
+.btn {
+  border-radius: 0;
+}
+
+.full-width {
+  padding: 0 3rem;
+  &.stuck-header {
+    top: 81px;
+  }
+  @media(max-width: 749px) {
+    padding: 0 22px;
+  }
+}
+
 #shopify-section-header {
   position: relative;
   z-index: 11;
@@ -32,10 +46,41 @@
   }
 }
 
+// QUOTE MENU
+.quote-menu {
+  border: 1px solid #7796a8;
+  border-right: 1px solid #ffffff;
+  left: calc(3rem + 1px);
+  max-width: 100%;
+  position: fixed;
+  top: 233px;
+  width: 250px;
+  z-index: 1;
+  ul {
+    li {
+      cursor: pointer;
+      padding: 1em;
+      transition: all 0.3s ease-in-out;
+      &.active {
+        background-color: #7796a8;
+        color: #ffffff;
+      }
+    }
+  }
+}
+
+// QUOTE FORM
 #quote-form {
-  display: block;
+  border: 1px solid #7796a8;
+  display: inline-block;
+  margin-left: 250px;
+  max-height: calc(100vh - 110px - 4em);
+  min-height: 300px;
+  overflow: auto;
+  padding: 2rem;
   position: relative;
-  width: 100%;
+  width: calc(100% - 250px);
+
   .form-section {
     display: block;
     height: initial;
@@ -45,9 +90,8 @@
     width: 100%;
     z-index: 1;
     &.hidden {
+      display: none;
       height: 0;
-      opacity: 0;
-      top: 2em;
       z-index: 0;
     }
     .form-group {
@@ -80,10 +124,11 @@
       label {
         width: 100%;
       }
+
       .inline-form-item {
-        &.garment-radio,
-        &.art-upload {
-          width: calc((100% / 3) - 1em);
+        &.garment-radio {
+          margin: 1em 0 0 0;
+          width: calc((100% / 2) - 1em);
         }
       }
       .garment-color {
@@ -92,9 +137,9 @@
         flex-wrap: wrap;
         .color-radio {
           align-self: flex-start;
-          margin-bottom: 1.5em;
+          margin: 0 5px 1.5em;
           text-align: center;
-          width: calc((100% / 7) - 4px);
+          width: calc((100% / 10) - 14px);
           label {
             font-weight: 500;
             transition: all 0.3s ease-in-out;
@@ -125,6 +170,60 @@
           }
         }
       }
+    }
+    &.accordion {
+      .accordion-item {
+        width: 100%;
+        .h4 {
+          border-bottom: 1px solid #e8e9eb;
+          cursor: pointer;
+          padding-bottom: 0.25em;
+          position: relative;
+          &:after,
+          &:before {
+            backface-visibility: hidden;
+            background-color: #e8e9eb;
+            content: "";
+            height: 2px;
+            position: absolute;
+            top: 50%;
+            // transform: translateY(50%);
+            right: 0;
+            width: 8px;
+          }
+          &:before {
+            transform: rotate(90deg);
+          }
+          &.open {
+            &:before {
+              transform: rotate(0);
+            }
+          }
+        }
+        .expandable {
+          height: 0;
+          overflow: hidden;
+          transition: height 0.3s ease-in-out;
+          &.open {
+            height: 200px;
+          }
+        }
+      }
+    }
+  }
+
+  .direction {
+    bottom: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    left: 0;
+    position: absolute;
+    width: 100%;
+    .prev-step,
+    .next-step,
+    .js-step-trigger-final {
+      flex: 0 1 calc(50% - 1px);
     }
   }
 }

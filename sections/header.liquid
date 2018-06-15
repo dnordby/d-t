@@ -1,4 +1,6 @@
-<div data-section-id="{{ section.id }}" data-section-type="header-section">
+{% assign page_handle = page.handle | downcase %}
+
+<div data-section-id="{{ section.id }}" data-section-type="header-section"{% if page_handle == 'free-quote' %} class="sticky-header"{% endif %}>
   <nav class="mobile-nav-wrapper medium-up--hide" role="navigation">
     <ul id="MobileNav" class="mobile-nav">
       {% for link in linklists[section.settings.main_linklist].links %}

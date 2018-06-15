@@ -1,20 +1,24 @@
 {% assign page_handle = page.handle | downcase %}
 {% assign page_name = page.title %}
 
-<div class="page-width">
-  <div class="grid">
-    <div class="grid__item medium-up--five-sixths medium-up--push-one-twelfth">
-      <div class="section-header text-center">
-        <h1>{{ page_name }}</h1>
-      </div>
-
-      {% if page_handle == 'free-quote' %}
-        {% include 'quote-form' %}
-      {% else %}
+{% if page_handle == 'free-quote' %}
+  <div class="full-width stuck-header">
+    <div class="section-header text-center">
+      <h1>{{ page_name }}</h1>
+    </div>
+    {% include 'quote-form' %}
+  </div>
+{% else %}
+  <div class="page-width">
+    <div class="grid">
+      <div class="grid__item medium-up--five-sixths medium-up--push-one-twelfth">
+        <div class="section-header text-center">
+          <h1>{{ page_name }}</h1>
+        </div>
         <div class="rte">
           {{ page.content }}
         </div>
-      {% endif %}
+      </div>
     </div>
   </div>
-</div>
+{% endif %}

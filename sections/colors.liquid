@@ -1,6 +1,4 @@
-{% assign garments = 'T-Shirt, Hoodie, Something Else' | split: ', ' %}
-
-<label>What color <span class="js-garment-type">{{ garments | first }}</span>s</label>
+<label>What color should it be?</label>
 <div class="inline-form-item garment-color">
   {% for block in section.blocks %}
     <div class="color-radio{% if forloop.first == true %} active{% endif %}">
