@@ -2781,9 +2781,6 @@ theme.Airtable = (function(){
   }
 
   function airTableCalls(formData, fn) {
-    var front_art_colors = 0;
-    var back_art_colors = 0;
-    var sleeve_art_colors = 0;
     var garment_type = formData.filter(function(object){ return object.name == 'garment'; })[0].value;
     var garment_quantity = formData.filter(function(object){ return object.name == 'quantity'; })[0].value;
     var garment_color = formData.filter(function(object){ return object.name == 'garment_color'; })[0].value;
@@ -2798,15 +2795,9 @@ theme.Airtable = (function(){
     if ( document.querySelector('[type=file][name=sleeve_art]').files[0] ) {
       var sleeve_art = document.querySelector('[type=file][name=sleeve_art]').files[0];
     }
-    if (front_art && formData.filter(function(object){ return object.name == 'front_art_colors'; }).length > 0 ) {
-      front_art_colors = parseInt(formData.filter(function(object){ return object.name == 'front_art_colors'; })[0].value);
-    }
-    if (back_art && formData.filter(function(object){ return object.name == 'back_art_colors'; }).length > 0 ) {
-      back_art_colors = parseInt(formData.filter(function(object){ return object.name == 'back_art_colors'; })[0].value);
-    }
-    if (sleeve_art && formData.filter(function(object){ return object.name == 'sleeve_art_colors'; }).length > 0 ) {
-      sleeve_art_colors = parseInt(formData.filter(function(object){ return object.name == 'sleeve_art_colors'; })[0].value);
-    }
+    var front_art_colors = front_art ? 3 : 0;
+    var back_art_colors = back_art ? 3 : 0;
+    var sleeve_art_colors = sleeve_art ? 3 : 0;
 
     function getUnitPrice(garment_quantity) {
       var table_param = encodeURIComponent('Cost Schedule');

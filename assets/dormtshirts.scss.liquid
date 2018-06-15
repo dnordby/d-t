@@ -79,7 +79,7 @@
   overflow: auto;
   padding: 2rem;
   position: relative;
-  width: calc(100% - 250px);
+  width: calc(60% - 250px);
 
   .form-section {
     display: block;
@@ -139,7 +139,7 @@
           align-self: flex-start;
           margin: 0 5px 1.5em;
           text-align: center;
-          width: calc((100% / 10) - 14px);
+          width: calc((100% / 6) - 14px);
           label {
             font-weight: 500;
             transition: all 0.3s ease-in-out;
@@ -187,15 +187,17 @@
             height: 2px;
             position: absolute;
             top: 50%;
-            // transform: translateY(50%);
+            transition: all 0.3s ease-in-out;
             right: 0;
-            width: 8px;
+            width: 10px;
           }
           &:before {
+            opacity: 1;
             transform: rotate(90deg);
           }
           &.open {
             &:before {
+              opacity: 0;
               transform: rotate(0);
             }
           }
