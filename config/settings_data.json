@@ -12,7 +12,9 @@
     "color_text_field_text": "#000",
     "color_image_overlay_text": "#fff",
     "color_image_overlay": "#3d4246",
+    "image_overlay_opacity": 0.2,
     "color_body_bg": "#fff",
+    "color_footer_bg": "#fff",
     "type_header_family": "Google_Work+Sans_600_sans",
     "type_header_base_size": "26px",
     "type_base_family": "Google_Work+Sans_400_sans",
@@ -30,6 +32,8 @@
     "social_youtube_link": "",
     "social_vimeo_link": "",
     "favicon": "",
+    "head_scripts": "",
+    "footer_scripts": "",
     "checkout_header_image": "",
     "checkout_logo_image": "",
     "checkout_logo_position": "left",
@@ -44,8 +48,6 @@
     "checkout_accent_color": "#1990c6",
     "checkout_button_color": "#1990c6",
     "checkout_error_color": "#ff6d6d",
-    "head_scripts": "",
-    "footer_scripts": "",
     "sections": {
       "header": {
         "type": "header",
@@ -68,7 +70,8 @@
           "footer_linklist": "footer",
           "footer_linklist_two": "",
           "footer_newsletter_enable": false,
-          "show_payment_icons": false
+          "show_payment_icons": false,
+          "show_theme_credits": true
         }
       },
       "1497286370991": {
@@ -77,7 +80,7 @@
           "title": "Blog posts",
           "background_color": "#212b35",
           "text_light": true,
-          "blog": "recipes",
+          "blog": "",
           "post_limit": "3",
           "blog_show_author": true,
           "blog_show_date": true,
@@ -446,7 +449,12 @@
               "text": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.<\/p>",
               "width": "50%",
               "alignment": "center",
-              "align_text": "left"
+              "align_text": "left",
+              "text_size": "",
+              "button_label": "",
+              "button_link": "",
+              "button_small": false,
+              "button_secondary": false
             }
           },
           "1497286861309-1": {
@@ -471,6 +479,14 @@
       "1497286879074": {
         "type": "custom-content",
         "blocks": {
+          "1497286879074-1": {
+            "type": "image",
+            "settings": {
+              "image": "",
+              "width": "50%",
+              "alignment": "center"
+            }
+          },
           "1497286879074-0": {
             "type": "text",
             "settings": {
@@ -478,15 +494,12 @@
               "text": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.<\/p>",
               "width": "50%",
               "alignment": "center",
-              "align_text": "left"
-            }
-          },
-          "1497286879074-1": {
-            "type": "image",
-            "settings": {
-              "image": "",
-              "width": "50%",
-              "alignment": "center"
+              "align_text": "left",
+              "text_size": "",
+              "button_label": "",
+              "button_link": "",
+              "button_small": false,
+              "button_secondary": false
             }
           }
         },
@@ -521,6 +534,174 @@
           "button_label": "Shop Now",
           "button_link": "shopify:\/\/collections"
         }
+      },
+      "colors": {
+        "type": "colors",
+        "blocks": {
+          "1523314033882": {
+            "type": "color",
+            "settings": {
+              "title": "Black",
+              "color": "#000000"
+            }
+          },
+          "1523314073369": {
+            "type": "color",
+            "settings": {
+              "title": "Navy",
+              "color": "#000080"
+            }
+          },
+          "1523314043575": {
+            "type": "color",
+            "settings": {
+              "title": "Royal",
+              "color": "#4169e1"
+            }
+          },
+          "1523315620022": {
+            "type": "color",
+            "settings": {
+              "title": "Kelly",
+              "color": "#4cbb17"
+            }
+          },
+          "1523315625951": {
+            "type": "color",
+            "settings": {
+              "title": "Military",
+              "color": "#4b5320"
+            }
+          },
+          "1523315697732": {
+            "type": "color",
+            "settings": {
+              "title": "Mint",
+              "color": "#98ff98"
+            }
+          },
+          "1523315976089": {
+            "type": "color",
+            "settings": {
+              "title": "Yellow",
+              "color": "#ffff00"
+            }
+          },
+          "1523315985770": {
+            "type": "color",
+            "settings": {
+              "title": "Orange",
+              "color": "#ffa500"
+            }
+          },
+          "1523316010501": {
+            "type": "color",
+            "settings": {
+              "title": "Brown",
+              "color": "#8b4513"
+            }
+          },
+          "1523316028341": {
+            "type": "color",
+            "settings": {
+              "title": "True Red",
+              "color": "#ff0000"
+            }
+          },
+          "1523316047109": {
+            "type": "color",
+            "settings": {
+              "title": "Cardinal Red",
+              "color": "#bd2031"
+            }
+          },
+          "1523316131985": {
+            "type": "color",
+            "settings": {
+              "title": "Charcoal",
+              "color": "#36454f"
+            }
+          },
+          "1523316139864": {
+            "type": "color",
+            "settings": {
+              "title": "Heather",
+              "color": "#bebbbb"
+            }
+          },
+          "1523316190820": {
+            "type": "color",
+            "settings": {
+              "title": "White",
+              "color": "#ffffff"
+            }
+          },
+          "1523316201881": {
+            "type": "color",
+            "settings": {
+              "title": "Purple",
+              "color": "#551a8b"
+            }
+          },
+          "1523316223720": {
+            "type": "color",
+            "settings": {
+              "title": "Lavender",
+              "color": "#e6e6fa"
+            }
+          },
+          "1523316241393": {
+            "type": "color",
+            "settings": {
+              "title": "Pink",
+              "color": "#ff69b4"
+            }
+          },
+          "1523316259283": {
+            "type": "color",
+            "settings": {
+              "title": "Baby Blue",
+              "color": "#89cff0"
+            }
+          },
+          "1523316300189": {
+            "type": "color",
+            "settings": {
+              "title": "Prism",
+              "color": "#584587"
+            }
+          },
+          "1523316329152": {
+            "type": "color",
+            "settings": {
+              "title": "Beige",
+              "color": "#f5f5dc"
+            }
+          }
+        },
+        "block_order": [
+          "1523314033882",
+          "1523314073369",
+          "1523314043575",
+          "1523315620022",
+          "1523315625951",
+          "1523315697732",
+          "1523315976089",
+          "1523315985770",
+          "1523316010501",
+          "1523316028341",
+          "1523316047109",
+          "1523316131985",
+          "1523316139864",
+          "1523316190820",
+          "1523316201881",
+          "1523316223720",
+          "1523316241393",
+          "1523316259283",
+          "1523316300189",
+          "1523316329152"
+        ],
+        "settings": {}
       }
     },
     "content_for_index": [
