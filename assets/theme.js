@@ -2714,6 +2714,160 @@ theme.SlideshowSection.prototype = _.assignIn({}, theme.SlideshowSection.prototy
 
 theme.Airtable = (function(){
   var base_url = 'https://api.airtable.com/v0/appxJdkngFawu679i/';
+  var key = '?api_key=keyR2EbtbmWAbMerQ';
+  var airtable_data = {};
+
+  function init() {
+    // INITIALIZE FORM //
+    formInit();
+
+    // NAVIGATE STEPS //
+    navigateForm('garment');
+    $('.js-step-trigger-next').click(function(){
+      var step = $('.quote-menu').find('.active').next().data('step');
+      if (step != undefined && step != 'undefined') {
+        navigateForm(step);
+      }
+    });
+    $('.js-step-trigger-back').click(function(){
+      var step = $('.quote-menu').find('.active').prev().data('step');
+      if (step != undefined && step != 'undefined') {
+        navigateForm(step);
+      }
+    });
+    $('.quote-menu li').click(function(){
+      var step = $(this).data('step');
+      navigateForm(step);
+    });
+
+
+    // EXPAND ACCORDIONS //
+    $('.accordion-item .h4').click(function(){
+      var target = $(this).data('toggle');
+      $('.expandable[data-target=' + target + ']').toggleClass('open');
+      $(this).toggleClass('open');
+    });
+
+    // TOGGLE COLOR SELECTIONS //
+    $(".color-radio").click(function(){
+      $(".color-radio").each(function(){
+        $(this).removeClass("active");
+      });
+      $(this).addClass("active");
+    });
+  }
+
+  function formInit() {
+    function callAirtable(table) {
+      var url = base_url + encodeURIComponent(table) + key;
+      return $.ajax({
+        url: url,
+        method: 'GET',
+        dataType: 'json'
+      });
+    }
+
+    var colorSchedule = callAirtable('Cost Schedule');
+    var feesSchedule = callAirtable('Schedule of Fees');
+    var rushSchedule = callAirtable('Rush');
+    var garmentSchedule = callAirtable('Garments');
+
+    $.when(colorSchedule, feesSchedule, rushSchedule, garmentSchedule).done(function(colors, fees, rush, garment){
+      var colors_records = colors[0].records;
+      var fees_records = fees[0].records;
+      var rush_records = rush[0].records;
+      var garment_records = garment[0].records;
+      var garment_section = $('.js-airtable-garments');
+      var garment_array = [];
+      var garment_html = '';
+
+      function objectBuilder(records, object_chunk, label) {
+        for(i=0; i < records.length; i++) {
+          object_chunk[records[i].fields[label].toLowerCase()] = {};
+          for(var key in records[i].fields) {
+            var value = records[i].fields[key];
+            if ( key != label ) {
+              object_chunk[records[i].fields[label].toLowerCase()][key] = value;
+            }
+          }
+        }
+      }
+
+      // Build airtable_data object for reference
+      airtable_data.colors = {};
+      airtable_data.fees = {};
+      airtable_data.rush = {};
+      airtable_data.garment = {};
+
+      objectBuilder(colors_records, airtable_data.colors, 'Pieces');
+      objectBuilder(fees_records, airtable_data.fees, '# of Colors');
+      objectBuilder(rush_records, airtable_data.rush, 'Days out from deadline');
+      objectBuilder(garment_records, airtable_data.garment, 'AlphaBroder SKU');
+
+      // Build garment button HTML
+      for(var sku in airtable_data.garment) {
+        if(!garment_array.includes(airtable_data.garment[sku].Title)) {
+          garment_array.push([sku, airtable_data.garment[sku].Title]);
+        }
+      }
+      garment_array.sort().reverse();
+      console.log(garment_array);
+      for(i = 0; i < garment_array.length; i++) {
+        var sku = garment_array[i][0];
+        var title = garment_array[i][1];
+        var garment_handle = title.toLowerCase().replace(' ', '_');
+        garment_html += `<div class="inline-form-item garment-radio">
+                          <input type="radio" name="garment" value="${sku}" id="${garment_handle}" checked="" required class="visually-hidden">
+                          <label for="${garment_handle}" class="btn">${title}</label>
+                        </div>`;
+      }
+
+      $(garment_section).append(garment_html);
+      $('.loader').addClass('hidden');
+    });
+
+    // TOGGLE GARMENT SELECTION //
+    $('.garment-radio label').click(function(){
+      $('.garment-radio').each(function(){
+        $(this).find('label').addClass('btn--secondary');
+      });
+      $(this).removeClass('btn--secondary');
+    });
+  }
+
+  function navigateForm(step) {
+    var step = step;
+    if (step != 'get-quote' || (step == 'get-quote' &&  $('.get-quote').hasClass('cleared'))) {
+      $('.quote-menu li').each(function(){
+        $(this).removeClass('active');
+      });
+      $('.quote-menu li[data-step=' + step + ']').addClass('active');
+
+      $('.form-section').each(function(){
+        $(this).addClass('hidden');
+      });
+      $('.form-section[data-step=' + step + ']').removeClass('hidden');  
+    }
+    
+    if (step == 'garment') {
+      $('.js-step-trigger-back').addClass('visually-hidden');
+      $('.js-step-trigger-next').removeClass('visually-hidden');
+      $('.js-step-trigger-final').addClass('visually-hidden');
+    } else if (step == 'get-quote') {
+      if ($('.get-quote').hasClass('cleared')) {
+        $('.js-step-trigger-back').removeClass('visually-hidden');
+        $('.js-step-trigger-next').addClass('visually-hidden');
+        $('.js-step-trigger-final').removeClass('visually-hidden');
+      } else {
+        alert('Please make all selections!');
+      }
+    } else {
+      $('.js-step-trigger-back').removeClass('visually-hidden');
+      $('.js-step-trigger-next').removeClass('visually-hidden');
+      $('.js-step-trigger-final').addClass('visually-hidden');
+    }
+  }
+
   function validateSection(currentStep, nextSection){
     var isValid = true;
 
@@ -3153,124 +3307,53 @@ theme.Airtable = (function(){
     });
   }
 
-
-  // Visual update on radio garment selections
-  $('.garment-radio label').click(function(){
-    $('.garment-radio').each(function(){
-      $(this).find('label').addClass('btn--secondary');
-    });
-    $(this).removeClass('btn--secondary');
-  });
-
-  // Visual update on radio color selections
-  $(".color-radio").click(function(){
-    var newActive = $(this);
-    $(".color-radio").each(function(){
-      $(this).removeClass("active");
-    });
-    $(newActive).addClass("active");
-  });
-
-  function navigateForm(step) {
-    var step = step;
-    $('.quote-menu li').each(function(){
-      $(this).removeClass('active');
-    });
-    $('.quote-menu li[data-step=' + step + ']').addClass('active');
-
-    $('.form-section').each(function(){
-      $(this).addClass('hidden');
-    });
-    $('.form-section[data-step=' + step + ']').removeClass('hidden');
-
-    if (step == 'garment') {
-      $('.js-step-trigger-back').addClass('visually-hidden');
-      $('.js-step-trigger-next').removeClass('visually-hidden');
-      $('.js-step-trigger-final').addClass('visually-hidden');
-    } else if (step == 'get-quote') {
-      $('.js-step-trigger-back').removeClass('visually-hidden');
-      $('.js-step-trigger-next').addClass('visually-hidden');
-      $('.js-step-trigger-final').removeClass('visually-hidden');
-    } else {
-      $('.js-step-trigger-back').removeClass('visually-hidden');
-      $('.js-step-trigger-next').removeClass('visually-hidden');
-      $('.js-step-trigger-final').addClass('visually-hidden');
-    }
-  }
-
-  // Navigate between form steps
-  navigateForm('garment');
-  $('.js-step-trigger-next').click(function(){
-    var step = $('.quote-menu').find('.active').next().data('step');
-    if (step != undefined && step != 'undefined') {
-      navigateForm(step);
-    }
-  });
-  $('.js-step-trigger-back').click(function(){
-    var step = $('.quote-menu').find('.active').prev().data('step');
-    if (step != undefined && step != 'undefined') {
-      navigateForm(step);
-    }
-  });
-  $('.quote-menu li').click(function(){
-    var step = $(this).data('step');
-    navigateForm(step);
-  });
-
-  // Expand accordions
-  $('.accordion-item .h4').click(function(){
-    var target = $(this).data('toggle');
-    $('.expandable[data-target=' + target + ']').toggleClass('open');
-    $(this).toggleClass('open');
-  });
-
   // CRUNCH THE NUMBERS
-  $('#quote-form').submit(function(e){
-    e.preventDefault();
-    var data = $(this).serializeArray();
-    airTableCalls(data, function(unitCog, screenPrice, setupCost, rushCost, averageCost){
-      $('.js-unit-price').text(averageCost);
+  // $('#quote-form').submit(function(e){
+  //   e.preventDefault();
+  //   var data = $(this).serializeArray();
+  //   airTableCalls(data, function(unitCog, screenPrice, setupCost, rushCost, averageCost){
+  //     $('.js-unit-price').text(averageCost);
 
-      // FULL SUBMISSION
-      $('.js-step-trigger-final').click(function(e){
-        e.preventDefault();
-        var data = {
-          form: $(this).closest('#quote-form').serializeArray(),
-          unit: unitCog,
-          screen: screenPrice,
-          setup: setupCost,
-          rush: rushCost
-        }
-        airTablePosts(data, function(successMessage){
+  //     // FULL SUBMISSION
+  //     $('.js-step-trigger-final').click(function(e){
+  //       e.preventDefault();
+  //       var data = {
+  //         form: $(this).closest('#quote-form').serializeArray(),
+  //         unit: unitCog,
+  //         screen: screenPrice,
+  //         setup: setupCost,
+  //         rush: rushCost
+  //       }
+  //       airTablePosts(data, function(successMessage){
           
-        });
+  //       });
 
-        $('.btn').each(function(){
-          $(this).prop('disabled', true);
-        });
-        var showThankYou = $('.form-section[data-step=3]');
-        $('.loader').removeClass('hidden');
-        setTimeout(function(){
-          window.scrollTo(0, 0);
-          $('.form-section').each(function(){
-            $(this).addClass('hidden');
-          });
-          $(showThankYou).removeClass('hidden');
-        },300);
-        setTimeout(function(){
-          $('.loader').addClass('hidden');
-        },750);
-      });
-    });
-  });
+  //       $('.btn').each(function(){
+  //         $(this).prop('disabled', true);
+  //       });
+  //       var showThankYou = $('.form-section[data-step=3]');
+  //       $('.loader').removeClass('hidden');
+  //       setTimeout(function(){
+  //         window.scrollTo(0, 0);
+  //         $('.form-section').each(function(){
+  //           $(this).addClass('hidden');
+  //         });
+  //         $(showThankYou).removeClass('hidden');
+  //       },300);
+  //       setTimeout(function(){
+  //         $('.loader').addClass('hidden');
+  //       },750);
+  //     });
+  //   });
+  // });
 
-
+  init();
 })();
 
 
 $(document).ready(function() {
-  if ( $('.loader').length > 0 ) {
-    $('.loader').addClass('hidden');
+  if ($('body').hasClass('free-quote')) {
+    theme.Airtable;
   }
   var sections = new theme.Sections();
 

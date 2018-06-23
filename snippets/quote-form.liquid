@@ -1,14 +1,12 @@
 {% assign garments = 'T-Shirt 1, T-Shirt 2, Hoodie 1, Hoodie 2' | split: ', ' %}
 {% assign quantity = '12, 24, 48, 96, 150, 300, 500, 750, 1000' | split: ', ' %}
 {% assign art_options = 'Front, Back, Sleeve' | split: ', ' %}
-{% assign art_colors = 'None, 1, 2, 3, 4, 5, 6, 7, 8' | split: ', ' %}
-{% assign sleeve_art_colors = 'None, 1, 2' | split: ', ' %}
 {% assign init_step = 'garment' %}
 
 <div class="quote-menu">
   <ul>
     {% for step in linklists.quote-menu.links %}
-      <li data-step="{{ step.title | downcase | handleize }}" {% if forloop.first == true %}class="active"{% endif %}>{{ step.title }}</li>
+      <li data-step="{{ step.title | downcase | handleize }}" class="{{ step.title | downcase | handleize }}{% if forloop.first == true %} active{% endif %}">{{ step.title }}</li>
     {% endfor %}
   </ul>
 </div>
@@ -16,14 +14,8 @@
 <form id="quote-form">
   {% comment %} GARMENT SECTION {% endcomment %}
   <div class="form-section" data-step="garment">
-    <div class="form-group">
+    <div class="form-group js-airtable-garments">
       <label>What kind of garment are you looking for?</label>
-      {% for garment in garments %}
-        <div class="inline-form-item garment-radio">
-          <input type="radio" name="garment" value="{{ garment }}" id="{{ garment | replace: ' ', '_' | replace: '-', '_' | downcase }}"{% if forloop.first == true %} checked required{% endif %} class="visually-hidden">
-          <label for="{{ garment | replace: ' ', '_' | replace: '-', '_' | downcase }}"  class="btn{% unless forloop.first == true %} btn--secondary{% endunless %}">{{ garment }}</label>
-        </div>
-      {% endfor %}
     </div>
     <div class="form-group">
       {% section 'colors' %}
