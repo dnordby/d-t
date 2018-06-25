@@ -2722,22 +2722,22 @@ theme.Airtable = (function(){
     formInit();
 
     // NAVIGATE STEPS //
-    navigateForm('garment');
+    navigateStep('garment');
     $('.js-step-trigger-next').click(function(){
       var step = $('.quote-menu').find('.active').next().data('step');
       if (step != undefined && step != 'undefined') {
-        navigateForm(step);
+        navigateStep(step);
       }
     });
     $('.js-step-trigger-back').click(function(){
       var step = $('.quote-menu').find('.active').prev().data('step');
       if (step != undefined && step != 'undefined') {
-        navigateForm(step);
+        navigateStep(step);
       }
     });
     $('.quote-menu li').click(function(){
       var step = $(this).data('step');
-      navigateForm(step);
+      navigateStep(step);
     });
 
 
@@ -2811,31 +2811,38 @@ theme.Airtable = (function(){
         }
       }
       garment_array.sort().reverse();
-      console.log(garment_array);
       for(i = 0; i < garment_array.length; i++) {
         var sku = garment_array[i][0];
         var title = garment_array[i][1];
         var garment_handle = title.toLowerCase().replace(' ', '_');
-        garment_html += `<div class="inline-form-item garment-radio">
-                          <input type="radio" name="garment" value="${sku}" id="${garment_handle}" checked="" required class="visually-hidden">
-                          <label for="${garment_handle}" class="btn">${title}</label>
-                        </div>`;
+        garment_html += `<div class="inline-form-item garment-radio">`
+        if (i == 0) {
+          garment_html += `<input type="radio" name="garment" value="${sku}" id="${garment_handle}" checked required class="visually-hidden">
+                           <label for="${garment_handle}" class="btn">${title}</label>
+                           </div>`;
+        } else {
+          garment_html +=   `<input type="radio" name="garment" value="${sku}" id="${garment_handle}" required class="visually-hidden">
+                             <label for="${garment_handle}" class="btn btn--secondary">${title}</label>
+                           </div>`;
+        }
       }
 
       $(garment_section).append(garment_html);
       $('.loader').addClass('hidden');
-    });
 
-    // TOGGLE GARMENT SELECTION //
-    $('.garment-radio label').click(function(){
-      $('.garment-radio').each(function(){
-        $(this).find('label').addClass('btn--secondary');
+      // TOGGLE GARMENT SELECTION //
+      $('.js-airtable-garments').mouseup(function(e){
+        $('.garment-radio').each(function(){
+          $(this).find('label').addClass('btn--secondary');
+          $(this).find('input').prop('checked', false);
+        });
+        $(e.target).removeClass('btn--secondary');
+        $(e.target).siblings('input').prop('checked', true);
       });
-      $(this).removeClass('btn--secondary');
     });
   }
 
-  function navigateForm(step) {
+  function navigateStep(step) {
     var step = step;
     if (step != 'get-quote' || (step == 'get-quote' &&  $('.get-quote').hasClass('cleared'))) {
       $('.quote-menu li').each(function(){
@@ -2850,20 +2857,17 @@ theme.Airtable = (function(){
     }
     
     if (step == 'garment') {
-      $('.js-step-trigger-back').addClass('visually-hidden');
+      $('.js-step-trigger-back, .js-step-trigger-final').addClass('visually-hidden');
       $('.js-step-trigger-next').removeClass('visually-hidden');
-      $('.js-step-trigger-final').addClass('visually-hidden');
     } else if (step == 'get-quote') {
       if ($('.get-quote').hasClass('cleared')) {
-        $('.js-step-trigger-back').removeClass('visually-hidden');
+        $('.js-step-trigger-back, .js-step-trigger-final').removeClass('visually-hidden');
         $('.js-step-trigger-next').addClass('visually-hidden');
-        $('.js-step-trigger-final').removeClass('visually-hidden');
       } else {
         alert('Please make all selections!');
       }
     } else {
-      $('.js-step-trigger-back').removeClass('visually-hidden');
-      $('.js-step-trigger-next').removeClass('visually-hidden');
+      $('.js-step-trigger-back, .js-step-trigger-next').removeClass('visually-hidden');
       $('.js-step-trigger-final').addClass('visually-hidden');
     }
   }
