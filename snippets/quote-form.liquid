@@ -45,8 +45,9 @@
     <div class="form-group">
       <label for="quantity">How many do you need?</label>
       <select name="quantity">
+        <option disabled required selected></option>
         {% for number in quantity %}
-          <option value="{{ number }}"{% if forloop.first == true%} required{% endif %}>{{ number }}</option>
+          <option value="{{ number }}">{{ number }}</option>
         {% endfor %}
       </select>
     </div>

@@ -2815,16 +2815,10 @@ theme.Airtable = (function(){
         var sku = garment_array[i][0];
         var title = garment_array[i][1];
         var garment_handle = title.toLowerCase().replace(' ', '_');
-        garment_html += `<div class="inline-form-item garment-radio">`
-        if (i == 0) {
-          garment_html += `<input type="radio" name="garment" value="${sku}" id="${garment_handle}" checked required class="visually-hidden">
-                           <label for="${garment_handle}" class="btn">${title}</label>
-                           </div>`;
-        } else {
-          garment_html +=   `<input type="radio" name="garment" value="${sku}" id="${garment_handle}" required class="visually-hidden">
-                             <label for="${garment_handle}" class="btn btn--secondary">${title}</label>
-                           </div>`;
-        }
+        garment_html +=  `<div class="inline-form-item garment-radio">
+                            <input type="radio" name="garment" value="${sku}" id="${garment_handle}" required class="visually-hidden">
+                            <label for="${garment_handle}" class="btn btn--secondary">${title}</label>
+                          </div>`;
       }
 
       $(garment_section).append(garment_html);
@@ -2843,6 +2837,8 @@ theme.Airtable = (function(){
   }
 
   function navigateStep(step) {
+    validateSections();
+
     var step = step;
     if (step != 'get-quote' || (step == 'get-quote' &&  $('.get-quote').hasClass('cleared'))) {
       $('.quote-menu li').each(function(){
@@ -2872,70 +2868,31 @@ theme.Airtable = (function(){
     }
   }
 
-  function validateSection(currentStep, nextSection){
-    var isValid = true;
-
-    $('.form-section[data-step=' + currentStep + ']').find('.form-group').each(function(){
-      var group = $(this);
-      var input = $(this).find('input');
-      var select = $(this).find('select');
-
-      $(this).removeClass('error-state');
-
-      // Test all input elements
-      if (input.length > 0) {
-        var inputType = $(input[0]).attr('type');
-        switch(inputType) {
-          case 'radio':
-            var value = $(group).find('input:checked').val();
-            if (value = "") {
-              isValid = false;
-              $(group).addClass('error-state');
-            }
-            break;
-          case 'date':
-            if ($(input[0]).val() == '') {
-              isValid = false;
-              $(group).addClass('error-state');
-            }
-            break;
-          case 'file':
-            var imagePicked = false;
-            for (var i = input.length - 1; i >= 0; i--) {
-              if ($(input[i])[0].files.length) {
-                imagePicked = true;
-                break;
-              }
-            }
-            if (!imagePicked) {
-              isValid = false;
-              $(group).addClass('error-state');
-            }
-            break;
+  function validateSections() {
+    $('.quote-menu li').each(function(){
+      if (!$(this).hasClass('complete')) {
+        var isValid = false;
+        var step = $(this).data('step');
+        var form_section = $('.form-section[data-step="' + step + '"]');
+        if (!$(form_section).hasClass('validated')) {
+          switch(step) {
+            case 'garment':
+              break;
+            case 'art':
+              break;
+            case 'quantity':
+              break;
+            case 'date':
+              break;
+            case 'get-quote':
+              break;
+          }
+        } else {
+          isValid = true;
         }
-      }
-
-      // Test all select elements
-      if (select.length > 0) {
-        if ($(select[0]).val() == "") {
-          isValid = false;
-        }
+        console.log(form_section);
       }
     });
-
-    if (isValid) {
-      $('.loader').removeClass('hidden');
-      setTimeout(function(){
-        window.scrollTo(0, 0);
-        $('.form-section').each(function(){
-          $(this).addClass('hidden');
-        });
-        $(nextSection).removeClass('hidden');
-      },300);
-      setTimeout(function(){
-        $('.loader').addClass('hidden');
-      },750);
-    }
   }
 
   function airTableCalls(formData, fn) {

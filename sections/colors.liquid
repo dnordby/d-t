@@ -1,8 +1,8 @@
 <label>What color should it be?</label>
 <div class="inline-form-item garment-color">
   {% for block in section.blocks %}
-    <div class="color-radio{% if forloop.first == true %} active{% endif %}">
-      <input type="radio" name="garment_color" value="{{ block.settings.title }}" id="{{ block.settings.title | replace: ' ', '_' | replace: '-', '_' | downcase }}"{% if forloop.first == true %} checked="checked" required{% endif %} class="visually-hidden">
+    <div class="color-radio">
+      <input type="radio" name="garment_color" value="{{ block.settings.title }}" id="{{ block.settings.title | replace: ' ', '_' | replace: '-', '_' | downcase }}" required class="visually-hidden">
 
       <label for="{{ block.settings.title | replace: ' ', '_' | replace: '-', '_' | downcase }}" class="color-{{ block.settings.title | replace: ' ', '_' | replace: '-', '_' | downcase }}">{{ block.settings.title }}</label>
     </div>
