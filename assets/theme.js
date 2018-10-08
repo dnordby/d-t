@@ -2712,604 +2712,303 @@ theme.SlideshowSection.prototype = _.assignIn({}, theme.SlideshowSection.prototy
 
 
 
-theme.Airtable = (function(){
-  var base_url = 'https://api.airtable.com/v0/appxJdkngFawu679i/';
-  var key = '?api_key=keyR2EbtbmWAbMerQ';
-  var airtable_data = {};
+// theme.Airtable = (function(){
 
-  function init() {
-    // INITIALIZE FORM //
-    formInit();
+//   function airTablePosts(data, fn) {
+//     var form = data.form;
+//     var unit = parseFloat(data.unit);
+//     var screen = parseFloat(data.screen);
+//     var setup = parseFloat(data.setup);
+//     var rush = parseFloat(data.rush);
+//     var rush_order = false;
+//     var front_art = '';
+//     var back_art = '';
+//     var sleeve_art = '';
+//     var front_art_colors = 0;
+//     var back_art_colors = 0;
+//     var sleeve_art_colors = 0;
+//     var garment_type = form.filter(function(object){ return object.name == 'garment'; })[0].value;
+//     var garment_quantity = parseInt(form.filter(function(object){ return object.name == 'quantity'; })[0].value);
+//     var garment_color = form.filter(function(object){ return object.name == 'garment_color'; })[0].value;
+//     var deadline = form.filter(function(object){ return object.name == 'deadline'; })[0].value;
+//     var email = form.filter(function(object){ return object.name == 'email'; })[0].value;
+//     var art_location = [];
+//     var art_cost = parseFloat((screen + setup) / garment_quantity).toFixed(2);
+//     if (form.filter(function(object){ return object.name == 'front_art_colors'; }).length > 0 ) {
+//       front_art_colors = parseInt(form.filter(function(object){ return object.name == 'front_art_colors'; })[0].value);
+//     }
+//     if (form.filter(function(object){ return object.name == 'back_art_colors'; }).length > 0 ) {
+//       back_art_colors = parseInt(form.filter(function(object){ return object.name == 'back_art_colors'; })[0].value);
+//     }
+//     if (form.filter(function(object){ return object.name == 'sleeve_art_colors'; }).length > 0 ) {
+//       sleeve_art_colors = parseInt(form.filter(function(object){ return object.name == 'sleeve_art_colors'; })[0].value);
+//     }
 
-    // NAVIGATE STEPS //
-    navigateStep('garment');
-    $('.js-step-trigger-next').click(function(){
-      var step = $('.quote-menu').find('.active').next().data('step');
-      if (step != undefined && step != 'undefined') {
-        navigateStep(step);
-      }
-    });
-    $('.js-step-trigger-back').click(function(){
-      var step = $('.quote-menu').find('.active').prev().data('step');
-      if (step != undefined && step != 'undefined') {
-        navigateStep(step);
-      }
-    });
-    $('.quote-menu li').click(function(){
-      var step = $(this).data('step');
-      navigateStep(step);
-    });
+//     if ( document.querySelector('[type=file][name=front_art]').files[0] ) {
+//       let file = document.querySelector('[type=file][name=front_art]').files[0];
+//       let reader  = new FileReader();
+//       if (file) {
+//         reader.readAsDataURL(file);
+//       }
+//       reader.addEventListener("loadend", function () {
+//         front_art = reader.result;
+//       });
+//       art_location.push('Front');
+//     }
+//     if ( document.querySelector('[type=file][name=back_art]').files[0] ) {
+//       let file = document.querySelector('[type=file][name=back_art]').files[0];
+//       let reader  = new FileReader();
+//       if (file) {
+//         reader.readAsDataURL(file);
+//       }
+//       reader.addEventListener("loadend", function () {
+//         back_art = reader.result;
+//       });
+//       art_location.push('Back');
+//     }
+//     if ( document.querySelector('[type=file][name=sleeve_art]').files[0] ) {
+//       let file = document.querySelector('[type=file][name=sleeve_art]').files[0];
+//       let reader  = new FileReader();
+//       if (file) {
+//         reader.readAsDataURL(file);
+//       }
+//       reader.addEventListener("loadend", function () {
+//         sleeve_art = reader.result;
+//       });
+//       art_location.push('Sleeve');
+//     }
+//     if (rush > 0.00) {
+//       rush_order = true;
+//     }
 
+//     function postLead() {
+//       var table_param = encodeURIComponent('Leads');
+//       var key = '?api_key=keyR2EbtbmWAbMerQ';
+//       var url = base_url + table_param + key;
+//       var data =  {
+//                     "fields": {
+//                       "Email": email,
+//                       "Quantity": garment_quantity,
+//                       "Deadline": deadline
+//                     }
+//                   }
 
-    // EXPAND ACCORDIONS //
-    $('.accordion-item .h4').click(function(){
-      var target = $(this).data('toggle');
-      $('.expandable[data-target=' + target + ']').toggleClass('open');
-      $(this).toggleClass('open');
-    });
+//       return $.ajax({
+//         url: url,
+//         method: 'POST',
+//         data: JSON.stringify(data),
+//         dataType: 'json',
+//         contentType: 'application/json'
+//       });
+//     }
 
-    // TOGGLE COLOR SELECTIONS //
-    $(".color-radio").click(function(){
-      $(".color-radio").each(function(){
-        $(this).removeClass("active");
-      });
-      $(this).addClass("active");
-    });
-  }
+//     function postQuote() {
+//       var table_param = encodeURIComponent('Quotes');
+//       var key = '?api_key=keyR2EbtbmWAbMerQ';
+//       var url = base_url + table_param + key;
+//       var data =  {
+//                     "fields": {
+//                       "Garment Color": garment_color,
+//                       "Quantity": garment_quantity,
+//                       "Deadline": deadline,
+//                       "Art Location": art_location,
+//                       "Markup %": 180,
+//                       "Garment Cost": unit.toFixed(2).toString(),
+//                       "Art Cost": art_cost.toString(),
+//                       "Rush": rush_order,
+//                       "Rush Cost": rush
+//                     },
+//                     "typecast": true
+//                   }
 
-  function formInit() {
-    function callAirtable(table) {
-      var url = base_url + encodeURIComponent(table) + key;
-      return $.ajax({
-        url: url,
-        method: 'GET',
-        dataType: 'json'
-      });
-    }
+//       return $.ajax({
+//         url: url,
+//         method: 'POST',
+//         data: JSON.stringify(data),
+//         dataType: 'json',
+//         contentType: 'application/json'
+//       });
+//     }
 
-    var colorSchedule = callAirtable('Cost Schedule');
-    var feesSchedule = callAirtable('Schedule of Fees');
-    var rushSchedule = callAirtable('Rush');
-    var garmentSchedule = callAirtable('Garments');
+//     function postArt(quoteId,leadId) {
+//       var table_param = encodeURIComponent('Art');
+//       var key = '?api_key=keyR2EbtbmWAbMerQ';
+//       var url = base_url + table_param + key;
 
-    $.when(colorSchedule, feesSchedule, rushSchedule, garmentSchedule).done(function(colors, fees, rush, garment){
-      var colors_records = colors[0].records;
-      var fees_records = fees[0].records;
-      var rush_records = rush[0].records;
-      var garment_records = garment[0].records;
-      var garment_section = $('.js-airtable-garments');
-      var garment_array = [];
-      var garment_html = '';
+//       function getImgUrl(file) {
+//         if (file != '') {
+//           var form = new FormData();
+//           form.append("image", file.split('base64,')[1]);
 
-      function objectBuilder(records, object_chunk, label) {
-        for(i=0; i < records.length; i++) {
-          object_chunk[records[i].fields[label].toLowerCase()] = {};
-          for(var key in records[i].fields) {
-            var value = records[i].fields[key];
-            if ( key != label ) {
-              object_chunk[records[i].fields[label].toLowerCase()][key] = value;
-            }
-          }
-        }
-      }
+//           return $.ajax({
+//             "async": true,
+//             "crossDomain": true,
+//             "url": "https://api.imgur.com/3/image",
+//             "method": "POST",
+//             "headers": {
+//               "Authorization": "Client-ID d30d31a907b7e76"
+//             },
+//             "processData": false,
+//             "contentType": false,
+//             "mimeType": "multipart/form-data",
+//             "data": form
+//           });
+//         } else {
+//           return ''
+//         }
+//       }
 
-      // Build airtable_data object for reference
-      airtable_data.colors = {};
-      airtable_data.fees = {};
-      airtable_data.rush = {};
-      airtable_data.garment = {};
+//       var front_url = getImgUrl(front_art);
+//       var back_url = getImgUrl(back_art);
+//       var sleeve_url = getImgUrl(sleeve_art);
 
-      objectBuilder(colors_records, airtable_data.colors, 'Pieces');
-      objectBuilder(fees_records, airtable_data.fees, '# of Colors');
-      objectBuilder(rush_records, airtable_data.rush, 'Days out from deadline');
-      objectBuilder(garment_records, airtable_data.garment, 'AlphaBroder SKU');
-
-      // Build garment button HTML
-      for(var sku in airtable_data.garment) {
-        if(!garment_array.includes(airtable_data.garment[sku].Title)) {
-          garment_array.push([sku, airtable_data.garment[sku].Title]);
-        }
-      }
-      garment_array.sort().reverse();
-      for(i = 0; i < garment_array.length; i++) {
-        var sku = garment_array[i][0];
-        var title = garment_array[i][1];
-        var garment_handle = title.toLowerCase().replace(' ', '_');
-        garment_html +=  `<div class="inline-form-item garment-radio">
-                            <input type="radio" name="garment" value="${sku}" id="${garment_handle}" required class="visually-hidden">
-                            <label for="${garment_handle}" class="btn btn--secondary">${title}</label>
-                          </div>`;
-      }
-
-      $(garment_section).append(garment_html);
-      $('.loader').addClass('hidden');
-
-      // TOGGLE GARMENT SELECTION //
-      $('.js-airtable-garments').mouseup(function(e){
-        $('.garment-radio').each(function(){
-          $(this).find('label').addClass('btn--secondary');
-          $(this).find('input').prop('checked', false);
-        });
-        $(e.target).removeClass('btn--secondary');
-        $(e.target).siblings('input').prop('checked', true);
-      });
-    });
-  }
-
-  function navigateStep(step) {
-    var step = step;
-    validateSections(step);
-    if (step != 'get-quote' || (step == 'get-quote' && $('.get-quote').hasClass('cleared'))) {
-      $('.quote-menu li').each(function(){
-        $(this).removeClass('active');
-      });
-      $('.quote-menu li[data-step=' + step + ']').addClass('active');
-
-      $('.form-section').each(function(){
-        $(this).addClass('hidden');
-      });
-      $('.form-section[data-step=' + step + ']').removeClass('hidden');  
-    }
-    
-    if (step == 'garment') {
-      $('.js-step-trigger-back, .js-step-trigger-final').addClass('visually-hidden');
-      $('.js-step-trigger-next').removeClass('visually-hidden');
-    } else if (step == 'get-quote') {
-      if ($('.get-quote').hasClass('cleared')) {
-        $('.js-step-trigger-back, .js-step-trigger-final').removeClass('visually-hidden');
-        $('.js-step-trigger-next').addClass('visually-hidden');
-      } else {
-        alert('Please review to be sure you have made all selections!');
-      }
-    } else {
-      $('.js-step-trigger-back, .js-step-trigger-next').removeClass('visually-hidden');
-      $('.js-step-trigger-final').addClass('visually-hidden');
-    }
-  }
-
-  function validateSections(step) {
-    var section = $('.form-section[data-step="' + step + '"]');
-    var activeMenu = $('.quote-menu').find('.active').data('step');
-    console.log(step);
-    console.log(activeMenu);
-    if (step != activeMenu) {
-      switch(step) {
-        case 'garment':
-          console.log('PING');
-          break;
-        case 'art':
-          break;
-        case 'quantity':
-          break;
-        case 'date':
-          break;
-        case 'get-quote':
-          break;
-      }
-    }
-  }
-
-  function airTableCalls(formData, fn) {
-    var garment_type = formData.filter(function(object){ return object.name == 'garment'; })[0].value;
-    var garment_quantity = formData.filter(function(object){ return object.name == 'quantity'; })[0].value;
-    var garment_color = formData.filter(function(object){ return object.name == 'garment_color'; })[0].value;
-    var deadline = formData.filter(function(object){ return object.name == 'deadline'; })[0].value;
-    var email = formData.filter(function(object){ return object.name == 'email'; })[0].value;
-    if ( document.querySelector('[type=file][name=front_art]').files[0] ) {
-      var front_art = document.querySelector('[type=file][name=front_art]').files[0];
-    }
-    if ( document.querySelector('[type=file][name=back_art]').files[0] ) {
-      var back_art = document.querySelector('[type=file][name=back_art]').files[0];
-    }
-    if ( document.querySelector('[type=file][name=sleeve_art]').files[0] ) {
-      var sleeve_art = document.querySelector('[type=file][name=sleeve_art]').files[0];
-    }
-    var front_art_colors = front_art ? 3 : 0;
-    var back_art_colors = back_art ? 3 : 0;
-    var sleeve_art_colors = sleeve_art ? 3 : 0;
-
-    function getUnitPrice(garment_quantity) {
-      var table_param = encodeURIComponent('Cost Schedule');
-      var filter_param = encodeURIComponent('{Pieces}=' + garment_quantity);
-
-      var filter = '?filterByFormula=' + filter_param;
-      var key = '&api_key=keyR2EbtbmWAbMerQ';
-      var url = base_url + table_param + filter + key;
-
-      return $.ajax({
-        url: url,
-        method: 'GET',
-        dataType: 'json'
-      });
-    }
-
-    function getSetupFees() {
-      var table_param = encodeURIComponent('Schedule of Fees');
-      var key = '?api_key=keyR2EbtbmWAbMerQ';
-      var url = base_url + table_param + key;
-
-      return $.ajax({
-        url: url,
-        method: 'GET',
-        dataType: 'json'
-      });
-    }
-
-    function getRushFees() {
-      var table_param = encodeURIComponent('Rush');
-      var key = '?api_key=keyR2EbtbmWAbMerQ';
-      var url = base_url + table_param + key;
-
-      return $.ajax({
-        url: url,
-        method: 'GET',
-        dataType: 'json'
-      });
-    }
-
-    // // Initialize calls
-    var unitPrice = getUnitPrice(garment_quantity);
-    var setupFees = getSetupFees();
-    var rushFees = getRushFees();
-
-    // Initialize queue
-    $.when(unitPrice, setupFees, rushFees).done(function(unitPriceData, setupFeesData, rushFees){
-      var unitCog = 0.0;
-      var screenPrice = 0.0;
-      var setupCost = 0.0;
-      var rushCost = 0.0;
-      var totalCog = 0.0;
-      var averageCost = 0.0;
-      var unitRecord = unitPriceData[0].records[0].fields;
-      var screenFees = setupFeesData[0].records[0].fields;
-      var setupFees = setupFeesData[0].records[1].fields;
-      var rushFees = rushFees[0].records[0].fields;
-
-      var oneDay = 1000*60*60*24;
-      var dateToday = new Date();
-      var deadlineDate = new Date(deadline);
-      var daysAway = Math.round((deadlineDate - dateToday) / oneDay);
-
-      if (daysAway <= 6) {
-        var dayString = '';
-        if (daysAway == 1) {
-          dayString = daysAway.toString() + ' Day';
-        } else if (daysAway < 1) {
-          alert('Orders require at least 24 hours to process.');
-        } else {
-          dayString = daysAway.toString() + ' Days';
-        }
-
-        if (dayString != '') {
-          rushCost = parseFloat(rushFees[dayString].toString().replace('$',''));
-        }
-      }
-
-      if (front_art_colors > 0) {
-        var unitFrontCost = parseFloat(unitRecord[front_art_colors.toString() + '-color'].replace('$',''));
-        screenPrice += parseFloat(screenFees[front_art_colors.toString()].toString().replace('$',''));
-        setupCost += parseFloat(setupFees[front_art_colors.toString()].toString().replace('$',''));
-        unitCog += unitFrontCost;
-      }
-      if (back_art_colors > 0) {
-        var unitBackCost = parseFloat(unitRecord[back_art_colors.toString() + '-color'].replace('$',''));
-        screenPrice += parseFloat(screenFees[back_art_colors.toString()].toString().replace('$',''));
-        setupCost += parseFloat(setupFees[back_art_colors.toString()].toString().replace('$',''));
-        unitCog += unitBackCost;
-      }
-      if (sleeve_art_colors > 0) {
-        var unitSleeveCost = parseFloat(unitRecord[sleeve_art_colors.toString() + '-color'].replace('$',''));
-        screenPrice += parseFloat(screenFees[sleeve_art_colors.toString()].toString().replace('$',''));
-        setupCost += parseFloat(setupFees[sleeve_art_colors.toString()].toString().replace('$',''));
-        unitCog += unitSleeveCost;
-      }
-
-      unitCog = parseFloat(unitCog).toFixed(2);
-      totalCog = parseFloat((unitCog * garment_quantity) + screenPrice + setupCost + rushCost).toFixed(2);
-      averageCost = (totalCog / garment_quantity).toFixed(2);
-
-      fn(unitCog, screenPrice, setupCost, rushCost, averageCost);
-    });
-  }
-
-  function airTablePosts(data, fn) {
-    var form = data.form;
-    var unit = parseFloat(data.unit);
-    var screen = parseFloat(data.screen);
-    var setup = parseFloat(data.setup);
-    var rush = parseFloat(data.rush);
-    var rush_order = false;
-    var front_art = '';
-    var back_art = '';
-    var sleeve_art = '';
-    var front_art_colors = 0;
-    var back_art_colors = 0;
-    var sleeve_art_colors = 0;
-    var garment_type = form.filter(function(object){ return object.name == 'garment'; })[0].value;
-    var garment_quantity = parseInt(form.filter(function(object){ return object.name == 'quantity'; })[0].value);
-    var garment_color = form.filter(function(object){ return object.name == 'garment_color'; })[0].value;
-    var deadline = form.filter(function(object){ return object.name == 'deadline'; })[0].value;
-    var email = form.filter(function(object){ return object.name == 'email'; })[0].value;
-    var art_location = [];
-    var art_cost = parseFloat((screen + setup) / garment_quantity).toFixed(2);
-    if (form.filter(function(object){ return object.name == 'front_art_colors'; }).length > 0 ) {
-      front_art_colors = parseInt(form.filter(function(object){ return object.name == 'front_art_colors'; })[0].value);
-    }
-    if (form.filter(function(object){ return object.name == 'back_art_colors'; }).length > 0 ) {
-      back_art_colors = parseInt(form.filter(function(object){ return object.name == 'back_art_colors'; })[0].value);
-    }
-    if (form.filter(function(object){ return object.name == 'sleeve_art_colors'; }).length > 0 ) {
-      sleeve_art_colors = parseInt(form.filter(function(object){ return object.name == 'sleeve_art_colors'; })[0].value);
-    }
-
-    if ( document.querySelector('[type=file][name=front_art]').files[0] ) {
-      let file = document.querySelector('[type=file][name=front_art]').files[0];
-      let reader  = new FileReader();
-      if (file) {
-        reader.readAsDataURL(file);
-      }
-      reader.addEventListener("loadend", function () {
-        front_art = reader.result;
-      });
-      art_location.push('Front');
-    }
-    if ( document.querySelector('[type=file][name=back_art]').files[0] ) {
-      let file = document.querySelector('[type=file][name=back_art]').files[0];
-      let reader  = new FileReader();
-      if (file) {
-        reader.readAsDataURL(file);
-      }
-      reader.addEventListener("loadend", function () {
-        back_art = reader.result;
-      });
-      art_location.push('Back');
-    }
-    if ( document.querySelector('[type=file][name=sleeve_art]').files[0] ) {
-      let file = document.querySelector('[type=file][name=sleeve_art]').files[0];
-      let reader  = new FileReader();
-      if (file) {
-        reader.readAsDataURL(file);
-      }
-      reader.addEventListener("loadend", function () {
-        sleeve_art = reader.result;
-      });
-      art_location.push('Sleeve');
-    }
-    if (rush > 0.00) {
-      rush_order = true;
-    }
-
-    function postLead() {
-      var table_param = encodeURIComponent('Leads');
-      var key = '?api_key=keyR2EbtbmWAbMerQ';
-      var url = base_url + table_param + key;
-      var data =  {
-                    "fields": {
-                      "Email": email,
-                      "Quantity": garment_quantity,
-                      "Deadline": deadline
-                    }
-                  }
-
-      return $.ajax({
-        url: url,
-        method: 'POST',
-        data: JSON.stringify(data),
-        dataType: 'json',
-        contentType: 'application/json'
-      });
-    }
-
-    function postQuote() {
-      var table_param = encodeURIComponent('Quotes');
-      var key = '?api_key=keyR2EbtbmWAbMerQ';
-      var url = base_url + table_param + key;
-      var data =  {
-                    "fields": {
-                      "Garment Color": garment_color,
-                      "Quantity": garment_quantity,
-                      "Deadline": deadline,
-                      "Art Location": art_location,
-                      "Markup %": 180,
-                      "Garment Cost": unit.toFixed(2).toString(),
-                      "Art Cost": art_cost.toString(),
-                      "Rush": rush_order,
-                      "Rush Cost": rush
-                    },
-                    "typecast": true
-                  }
-
-      return $.ajax({
-        url: url,
-        method: 'POST',
-        data: JSON.stringify(data),
-        dataType: 'json',
-        contentType: 'application/json'
-      });
-    }
-
-    function postArt(quoteId,leadId) {
-      var table_param = encodeURIComponent('Art');
-      var key = '?api_key=keyR2EbtbmWAbMerQ';
-      var url = base_url + table_param + key;
-
-      function getImgUrl(file) {
-        if (file != '') {
-          var form = new FormData();
-          form.append("image", file.split('base64,')[1]);
-
-          return $.ajax({
-            "async": true,
-            "crossDomain": true,
-            "url": "https://api.imgur.com/3/image",
-            "method": "POST",
-            "headers": {
-              "Authorization": "Client-ID d30d31a907b7e76"
-            },
-            "processData": false,
-            "contentType": false,
-            "mimeType": "multipart/form-data",
-            "data": form
-          });
-        } else {
-          return ''
-        }
-      }
-
-      var front_url = getImgUrl(front_art);
-      var back_url = getImgUrl(back_art);
-      var sleeve_url = getImgUrl(sleeve_art);
-
-      $.when(front_url, back_url, sleeve_url).done(function(frontUrlData, backUrlData, sleeveUrlData){
-        if (frontUrlData != '') {
-          var front_url = JSON.parse(frontUrlData[0]).data.link || '';
-        } else {
-          var front_url = '';
-        }
-        if (backUrlData != '') {
-          var back_url = JSON.parse(backUrlData[0]).data.link || '';
-        } else {
-          var back_url = '';
-        }
-        if (sleeveUrlData != '') {
-          var sleeve_url = JSON.parse(sleeveUrlData[0]).data.link || '';
-        } else {
-          var sleeve_url = '';
-        }
+//       $.when(front_url, back_url, sleeve_url).done(function(frontUrlData, backUrlData, sleeveUrlData){
+//         if (frontUrlData != '') {
+//           var front_url = JSON.parse(frontUrlData[0]).data.link || '';
+//         } else {
+//           var front_url = '';
+//         }
+//         if (backUrlData != '') {
+//           var back_url = JSON.parse(backUrlData[0]).data.link || '';
+//         } else {
+//           var back_url = '';
+//         }
+//         if (sleeveUrlData != '') {
+//           var sleeve_url = JSON.parse(sleeveUrlData[0]).data.link || '';
+//         } else {
+//           var sleeve_url = '';
+//         }
         
-        var artData =   {
-                          "fields": {
-                            "Front Colors": front_art_colors,
-                            "Back Colors": back_art_colors,
-                            "Sleeve Colors": sleeve_art_colors,
-                            "Quote ID": [quoteId],
-                            "Lead ID": [leadId]
-                          },
-                          "typecast": true
-                        }
-        if (front_url != '') {
-          artData.fields["Front Art"] = front_url;
-        }
-        if (back_url != '') {
-          artData.fields["Back Art"] = back_url;
-        }
-        if (sleeve_url != '') {
-          artData.fields["Sleeve Art"] = sleeve_url;
-        }
+//         var artData =   {
+//                           "fields": {
+//                             "Front Colors": front_art_colors,
+//                             "Back Colors": back_art_colors,
+//                             "Sleeve Colors": sleeve_art_colors,
+//                             "Quote ID": [quoteId],
+//                             "Lead ID": [leadId]
+//                           },
+//                           "typecast": true
+//                         }
+//         if (front_url != '') {
+//           artData.fields["Front Art"] = front_url;
+//         }
+//         if (back_url != '') {
+//           artData.fields["Back Art"] = back_url;
+//         }
+//         if (sleeve_url != '') {
+//           artData.fields["Sleeve Art"] = sleeve_url;
+//         }
 
-        function updateLead(quoteId,leadId) {
-          var table_param = encodeURIComponent('Leads');
-          var key = '?api_key=keyR2EbtbmWAbMerQ';
-          var url = base_url + table_param + '/' + leadId + key;
-          var data =  {
-                        "fields": {
-                          "Quotes": [quoteId]
-                        },
-                        "typecast": true
-                      }
-          $.ajax({
-            url: url,
-            method: 'PATCH',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: 'application/json'
-          }).fail(function(a,b,c){
-            console.log(a);
-            console.log(b);
-            console.log(c);
-          });
-        }
-        function updateQuote(quoteId,leadId) {
-          var table_param = encodeURIComponent('Quotes');
-          var key = '?api_key=keyR2EbtbmWAbMerQ';
-          var url = base_url + table_param + '/' + quoteId + key;
-          var data =  {
-                        "fields": {
-                          "Leads": [leadId]
-                        },
-                        "typecast": true
-                      }
-          $.ajax({
-            url: url,
-            method: 'PATCH',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: 'application/json'
-          });
-        }
+//         function updateLead(quoteId,leadId) {
+//           var table_param = encodeURIComponent('Leads');
+//           var key = '?api_key=keyR2EbtbmWAbMerQ';
+//           var url = base_url + table_param + '/' + leadId + key;
+//           var data =  {
+//                         "fields": {
+//                           "Quotes": [quoteId]
+//                         },
+//                         "typecast": true
+//                       }
+//           $.ajax({
+//             url: url,
+//             method: 'PATCH',
+//             data: JSON.stringify(data),
+//             dataType: 'json',
+//             contentType: 'application/json'
+//           }).fail(function(a,b,c){
+//             console.log(a);
+//             console.log(b);
+//             console.log(c);
+//           });
+//         }
+//         function updateQuote(quoteId,leadId) {
+//           var table_param = encodeURIComponent('Quotes');
+//           var key = '?api_key=keyR2EbtbmWAbMerQ';
+//           var url = base_url + table_param + '/' + quoteId + key;
+//           var data =  {
+//                         "fields": {
+//                           "Leads": [leadId]
+//                         },
+//                         "typecast": true
+//                       }
+//           $.ajax({
+//             url: url,
+//             method: 'PATCH',
+//             data: JSON.stringify(data),
+//             dataType: 'json',
+//             contentType: 'application/json'
+//           });
+//         }
 
-        $.ajax({
-          url: url,
-          method: 'POST',
-          data: JSON.stringify(artData),
-          dataType: 'json',
-          contentType: 'application/json'
-        }).done(function(data){
-          updateLead(quoteId,leadId);
-          updateLead(quoteId,leadId);
-        });
-      });
+//         $.ajax({
+//           url: url,
+//           method: 'POST',
+//           data: JSON.stringify(artData),
+//           dataType: 'json',
+//           contentType: 'application/json'
+//         }).done(function(data){
+//           updateLead(quoteId,leadId);
+//           updateLead(quoteId,leadId);
+//         });
+//       });
       
-    }
+//     }
 
-    var lead = postLead();
-    var quote = postQuote();
+//     var lead = postLead();
+//     var quote = postQuote();
 
-    $.when(lead, quote).done(function(leadData, quoteData){
-      var leadId = leadData[0].id;
-      var quoteId = quoteData[0].id;
-      postArt(quoteId,leadId);
-    });
-  }
+//     $.when(lead, quote).done(function(leadData, quoteData){
+//       var leadId = leadData[0].id;
+//       var quoteId = quoteData[0].id;
+//       postArt(quoteId,leadId);
+//     });
+//   }
 
-  // CRUNCH THE NUMBERS
-  // $('#quote-form').submit(function(e){
-  //   e.preventDefault();
-  //   var data = $(this).serializeArray();
-  //   airTableCalls(data, function(unitCog, screenPrice, setupCost, rushCost, averageCost){
-  //     $('.js-unit-price').text(averageCost);
+//   // CRUNCH THE NUMBERS
+//   // $('#quote-form').submit(function(e){
+//   //   e.preventDefault();
+//   //   var data = $(this).serializeArray();
+//   //   airTableCalls(data, function(unitCog, screenPrice, setupCost, rushCost, averageCost){
+//   //     $('.js-unit-price').text(averageCost);
 
-  //     // FULL SUBMISSION
-  //     $('.js-step-trigger-final').click(function(e){
-  //       e.preventDefault();
-  //       var data = {
-  //         form: $(this).closest('#quote-form').serializeArray(),
-  //         unit: unitCog,
-  //         screen: screenPrice,
-  //         setup: setupCost,
-  //         rush: rushCost
-  //       }
-  //       airTablePosts(data, function(successMessage){
+//   //     // FULL SUBMISSION
+//   //     $('.js-step-trigger-final').click(function(e){
+//   //       e.preventDefault();
+//   //       var data = {
+//   //         form: $(this).closest('#quote-form').serializeArray(),
+//   //         unit: unitCog,
+//   //         screen: screenPrice,
+//   //         setup: setupCost,
+//   //         rush: rushCost
+//   //       }
+//   //       airTablePosts(data, function(successMessage){
           
-  //       });
+//   //       });
 
-  //       $('.btn').each(function(){
-  //         $(this).prop('disabled', true);
-  //       });
-  //       var showThankYou = $('.form-section[data-step=3]');
-  //       $('.loader').removeClass('hidden');
-  //       setTimeout(function(){
-  //         window.scrollTo(0, 0);
-  //         $('.form-section').each(function(){
-  //           $(this).addClass('hidden');
-  //         });
-  //         $(showThankYou).removeClass('hidden');
-  //       },300);
-  //       setTimeout(function(){
-  //         $('.loader').addClass('hidden');
-  //       },750);
-  //     });
-  //   });
-  // });
+//   //       $('.btn').each(function(){
+//   //         $(this).prop('disabled', true);
+//   //       });
+//   //       var showThankYou = $('.form-section[data-step=3]');
+//   //       $('.loader').removeClass('hidden');
+//   //       setTimeout(function(){
+//   //         window.scrollTo(0, 0);
+//   //         $('.form-section').each(function(){
+//   //           $(this).addClass('hidden');
+//   //         });
+//   //         $(showThankYou).removeClass('hidden');
+//   //       },300);
+//   //       setTimeout(function(){
+//   //         $('.loader').addClass('hidden');
+//   //       },750);
+//   //     });
+//   //   });
+//   // });
 
-  init();
-})();
+//   init();
+// })();
 
 
 $(document).ready(function() {
-  if ($('body').hasClass('free-quote')) {
-    theme.Airtable;
-  }
   var sections = new theme.Sections();
 
   sections.register('cart-template', theme.Cart);
