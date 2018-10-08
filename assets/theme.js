@@ -2837,10 +2837,9 @@ theme.Airtable = (function(){
   }
 
   function navigateStep(step) {
-    validateSections();
-
     var step = step;
-    if (step != 'get-quote' || (step == 'get-quote' &&  $('.get-quote').hasClass('cleared'))) {
+    validateSections(step);
+    if (step != 'get-quote' || (step == 'get-quote' && $('.get-quote').hasClass('cleared'))) {
       $('.quote-menu li').each(function(){
         $(this).removeClass('active');
       });
@@ -2860,7 +2859,7 @@ theme.Airtable = (function(){
         $('.js-step-trigger-back, .js-step-trigger-final').removeClass('visually-hidden');
         $('.js-step-trigger-next').addClass('visually-hidden');
       } else {
-        alert('Please make all selections!');
+        alert('Please review to be sure you have made all selections!');
       }
     } else {
       $('.js-step-trigger-back, .js-step-trigger-next').removeClass('visually-hidden');
@@ -2868,31 +2867,26 @@ theme.Airtable = (function(){
     }
   }
 
-  function validateSections() {
-    $('.quote-menu li').each(function(){
-      if (!$(this).hasClass('complete')) {
-        var isValid = false;
-        var step = $(this).data('step');
-        var form_section = $('.form-section[data-step="' + step + '"]');
-        if (!$(form_section).hasClass('validated')) {
-          switch(step) {
-            case 'garment':
-              break;
-            case 'art':
-              break;
-            case 'quantity':
-              break;
-            case 'date':
-              break;
-            case 'get-quote':
-              break;
-          }
-        } else {
-          isValid = true;
-        }
-        console.log(form_section);
+  function validateSections(step) {
+    var section = $('.form-section[data-step="' + step + '"]');
+    var activeMenu = $('.quote-menu').find('.active').data('step');
+    console.log(step);
+    console.log(activeMenu);
+    if (step != activeMenu) {
+      switch(step) {
+        case 'garment':
+          console.log('PING');
+          break;
+        case 'art':
+          break;
+        case 'quantity':
+          break;
+        case 'date':
+          break;
+        case 'get-quote':
+          break;
       }
-    });
+    }
   }
 
   function airTableCalls(formData, fn) {

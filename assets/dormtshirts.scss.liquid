@@ -2,6 +2,7 @@ $vertical-spacing: 4.5rem;
 $mobile-vertical-spacing: 2.25rem;
 $active: #7796a8;
 $disabled: #d3d3d3;
+$error: #ffb2af;
 $success: #dff0d8;
 $white: #ffffff;
 $black: {{ settings.color_text }};
@@ -82,6 +83,18 @@ $black: {{ settings.color_text }};
         transition: all 0.3s ease-in-out;
         width: 0;
       }
+      &:after {
+        background: url("{{ 'error.svg' | asset_url }}");
+        background-repeat: no-repeat;
+        background-size: cover;
+        content: '';
+        height: 0;
+        opacity: 0;
+        position: absolute;
+        right: 1em;
+        transition: all 0.3s ease-in-out;
+        width: 0;
+      }
       &.active {
         background-color: $active;
         color: $white;
@@ -90,6 +103,15 @@ $black: {{ settings.color_text }};
         background-color: $success;
         color: $black;
         &:before {
+          height: 1.5rem;
+          opacity: 1;
+          width: 1.5rem;
+        }
+      }
+      &.incomplete {
+        background-color: $error;
+        color: $black;
+        &:after {
           height: 1.5rem;
           opacity: 1;
           width: 1.5rem;
