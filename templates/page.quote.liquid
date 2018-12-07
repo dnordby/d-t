@@ -1,0 +1,494 @@
+{% assign garments = 'T-Shirt 1, T-Shirt 2, Hoodie 1, Hoodie 2' | split: ', ' %}
+{% assign quantity = '12, 24, 48, 96, 150, 300, 500, 750, 1000' | split: ', ' %}
+{% assign art_options = 'Front, Back, Sleeve' | split: ', ' %}
+{% assign init_step = 'garment' %}
+
+
+<div class="full-width stuck-header">
+  <div class="quote-menu">
+    <ul>
+      {% for step in linklists.quote-menu.links %}
+        <li data-step="{{ step.title | downcase | handleize }}" class="{{ step.title | downcase | handleize }}{% if forloop.first == true %} active{% endif %}">{{ step.title }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <form id="quote-form">
+    {% comment %} GARMENT SECTION {% endcomment %}
+    <div class="form-section" data-step="garment">
+      <div class="form-group js-airtable-garments">
+        <label>What kind of garment are you looking for?</label>
+      </div>
+      <div class="form-group">
+        {% section 'colors' %}
+      </div>
+    </div>
+
+    {% comment %} ART SECTION {% endcomment %}
+    <div class="form-section hidden accordion" data-step="art">
+      <div class="form-group">
+        {% for art in art_options %}
+          <div class="accordion-item">
+            <p class="h4" data-toggle="{{ art | downcase }}">{{ art }}</p>
+            <div class="inline-form-item art-upload expandable" data-target="{{ art | downcase }}">
+              <p>Don't worry about exactness! This is just for quoting purposes.</p>
+              <label for="{{ art | downcase }}_art">Upload an image</label>
+              <input type="file" name="{{ art | downcase }}_art" id="{{ art | downcase }}_art" data-set="{{ art_img }}">
+              <label for="{{ art | downcase }}_text">Add text</label>
+              <input type="text" name="{{ art | downcase }}_text" id="{{ art | downcase }}_text" data-set="{{ art_text }}">
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    
+    {% comment %} QUANTITY SECTION {% endcomment %}
+    <div class="form-section hidden" data-step="quantity">
+      <div class="form-group">
+        <label for="quantity">How many do you need?</label>
+        <select name="quantity">
+          <option disabled required selected></option>
+          {% for number in quantity %}
+            <option value="{{ number }}">{{ number }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    {% comment %} DATE SECTION {% endcomment %}
+    <div class="form-section hidden" data-step="date">
+      <div class="form-group">
+        <div class="error-message">This field is required.</div>
+        <label for="deadline">When do you need them by?</label>
+        <input type="date" name="deadline" min="{{ 'today' | date: '%s' | plus: 86400 | date: '%Y-%m-%d' }}" required>
+      </div>
+    </div>
+
+
+    {% comment %} QUOTE SECTION {% endcomment %}
+    <div class="form-section hidden" data-step="get-quote">
+      <h2>$<span class="js-unit-price"></span> per <span class="js-garment-type"></span></h2>
+      <p class="h4">Your detailed quote is ready!</p>
+      <div class="form-group">
+        <label for="email">What's your email?</label>
+        <input type="email" name="email">
+      </div>
+    </div>
+
+    <div class="direction">
+      <div class="prev-step btn js-step-trigger-back">Back</div>
+      <div class="next-step btn js-step-trigger-next">Next</div>
+      <button class="btn js-step-trigger-final">Get Quote!</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  var base_url = 'https://api.airtable.com/v0/appxJdkngFawu679i/';
+  var key = '?api_key=keyR2EbtbmWAbMerQ';
+  var airtable_data = {
+    colors: {},
+    fees: {},
+    rush: {},
+    garment: {}
+  };
+
+
+
+  // ************** //
+  // CORE FUNCTIONS //
+  // ************** //
+  function init() {
+    $('.loader').addClass('hidden');
+    formInit();
+  }
+
+
+  // Initialize form
+  function formInit() {
+    var colorSchedule = callAirtable('Cost Schedule');
+    var feesSchedule = callAirtable('Schedule of Fees');
+    var rushSchedule = callAirtable('Rush');
+    var garmentSchedule = callAirtable('Garments');
+
+    $.when(colorSchedule, feesSchedule, rushSchedule, garmentSchedule).done(function(colors, fees, rush, garment){
+      var colors_records = colors[0].records;
+      var fees_records = fees[0].records;
+      var rush_records = rush[0].records;
+      var garment_records = garment[0].records;
+
+      objectBuilder(colors_records, airtable_data.colors, 'Pieces');
+      objectBuilder(fees_records, airtable_data.fees, '# of Colors');
+      objectBuilder(rush_records, airtable_data.rush, 'Days out from deadline');
+      objectBuilder(garment_records, airtable_data.garment, 'AlphaBroder SKU');
+
+      buildGarments(airtable_data.garment);
+      colorTriggers();
+      stepTriggers();
+      accordionTriggers();
+      inputListener();
+      navigateStep('garment');
+    });
+  }
+
+  function getImgUrl(file) {
+    if (file != '') {
+      var formdata = new FormData();
+      var fileString = file.split('base64,')[1];
+      formdata.append("image", fileString);
+
+      return $.ajax({
+        "async": true,
+        "crossDomain": true,
+        "url": "https://api.imgur.com/3/image",
+        "method": "POST",
+        "headers": {
+          "Authorization": "Client-ID d30d31a907b7e76"
+        },
+        "processData": false,
+        "contentType": false,
+        "mimeType": "multipart/form-data",
+        "data": formdata
+      });
+    } else {
+      return ''
+    }
+  }
+
+  function formListener() {
+    $('.js-step-trigger-final').click(function(e){
+      e.preventDefault();
+      var form_data = $(this).closest('#quote-form').serializeArray();
+
+      // Front art
+      if ( document.querySelector('[type=file][name=front_art]').files[0] ) {
+        var file = document.querySelector('[type=file][name=front_art]').files[0];
+        var reader  = new FileReader();
+        if (file) {
+          reader.readAsDataURL(file);
+        }
+        reader.addEventListener("loadend", function () {
+          front_art = reader.result;
+          var front_url = getImgUrl(front_art);
+          $.when(front_url).done(function(front_url_data){
+            data = JSON.parse(front_url_data);
+            console.log(data.data.link);
+          });
+        });
+      } else {
+        var front_url = '';
+      }
+
+      // Back art
+      if ( document.querySelector('[type=file][name=back_art]').files[0] ) {
+        var file = document.querySelector('[type=file][name=back_art]').files[0];
+        var reader  = new FileReader();
+        if (file) {
+          reader.readAsDataURL(file);
+        }
+        reader.addEventListener("loadend", function () {
+          back_art = reader.result;
+          var back_url = getImgUrl(back_art);
+          $.when(back_url).done(function(back_url_data){
+            data = JSON.parse(back_url_data);
+            console.log(data.data.link);
+          });
+        });
+      } else {
+        var back_url = '';
+      }
+
+      // Sleeve art
+      if ( document.querySelector('[type=file][name=sleeve_art]').files[0] ) {
+        var file = document.querySelector('[type=file][name=sleeve_art]').files[0];
+        var reader  = new FileReader();
+        if (file) {
+          reader.readAsDataURL(file);
+        }
+        reader.addEventListener("loadend", function () {
+          sleeve_art = reader.result;
+          var sleeve_url = getImgUrl(sleeve_art);
+          $.when(sleeve_url).done(function(sleeve_url_data){
+            data = JSON.parse(sleeve_url_data);
+            console.log(data.data.link);
+          });
+        });
+      } else {
+        var sleeve_url = '';
+      }
+
+
+      console.log(airtable_data);
+      console.log(form_data);
+
+      // var data = {
+      //   form: $(this).closest('#quote-form').serializeArray(),
+      //   unit: unitCog,
+      //   screen: screenPrice,
+      //   setup: setupCost,
+      //   rush: rushCost
+      // }
+    });
+  }
+
+  function formSubmit() {
+  }
+
+
+
+  // ***************** //
+  // UTILITY FUNCTIONS //
+  // ***************** //
+  function callAirtable(table) {
+    var url = base_url + encodeURIComponent(table) + key;
+    return $.ajax({
+      url: url,
+      method: 'GET',
+      dataType: 'json'
+    });
+  }
+
+  function objectBuilder(records, object_chunk, label) {
+    for(i=0; i < records.length; i++) {
+      object_chunk[records[i].fields[label].toLowerCase()] = {};
+      for(var key in records[i].fields) {
+        var value = records[i].fields[key];
+        if ( key != label ) {
+          object_chunk[records[i].fields[label].toLowerCase()][key] = value;
+        }
+      }
+    }
+  }
+
+  function buildGarments(garments) {
+    var garment_array = [];
+    var garment_section = $('.js-airtable-garments');
+
+    for (item_sku in garments) {
+      if (!garment_array.includes(garments[item_sku].Title)) {
+        var garment_title = garments[item_sku].Title;
+        var garment_handle = garment_title.toLowerCase().replace(' ', '_');
+        var button_html = '<div class="inline-form-item garment-radio"><input type="radio" name="garment" value="' + item_sku + '" id="' + garment_handle + '" required class="visually-hidden"><label for="' + garment_handle + '" class="btn btn--secondary">' + garment_title + '</label></div>';
+        garment_array.push(garments[item_sku].Title);
+        $(garment_section).append(button_html);
+      }
+    }
+
+    $('.js-airtable-garments').mouseup(function(e){
+      var section = $(this).closest('.form-section').data('step');
+      $('.garment-radio').each(function(){
+        $(this).find('label').addClass('btn--secondary');
+        $(this).find('input').prop('checked', false);
+      });
+      $(e.target).removeClass('btn--secondary');
+      $(e.target).siblings('input').prop('checked', true);
+      isDone(section);
+    });
+  }
+
+  function stepTriggers() {
+    $('.js-step-trigger-next').click(function(){
+      var step = $('.quote-menu').find('.active').data('step');
+      var next_step = $('.quote-menu').find('.active').next().data('step');
+      if (next_step != undefined && next_step != 'undefined') {
+        navigateStep(next_step);
+        validateSection(step);
+      }
+    });
+    $('.js-step-trigger-back').click(function(){
+      var step = $('.quote-menu').find('.active').data('step');
+      var next_step = $('.quote-menu').find('.active').prev().data('step');
+      if (next_step != undefined && next_step != 'undefined') {
+        navigateStep(next_step);
+        validateSection(step);
+      }
+    });
+    $('.quote-menu li').click(function(){
+      var step = $('.quote-menu').find('.active').data('step');
+      var next_step = $(this).data('step');
+      navigateStep(next_step);
+      validateSection(step);
+    });
+  }
+
+  function colorTriggers() {
+    $(".color-radio").click(function(){
+      $(".color-radio").each(function(){
+        $(this).removeClass("active");
+      });
+      $(this).addClass("active");
+    });
+  }
+
+  function accordionTriggers() {
+    $('.accordion-item .h4').click(function(){
+      var target = $(this).data('toggle');
+      $('.expandable[data-target=' + target + ']').toggleClass('open');
+      $(this).toggleClass('open');
+    });
+  }
+
+  function inputListener() {
+    $('input, select').each(function(){
+      $(this).on('change', function(){
+        var section = $(this).closest('.form-section').data('step');
+        isDone(section);
+      });
+    });
+  }
+
+  function navigateStep(step) {
+    if ( $('[data-step=' + step + ']').hasClass('incomplete') ) {
+      $('[data-step=' + step + ']').removeClass('incomplete')
+    }
+
+    if (step == 'garment') {
+      $('.js-step-trigger-back, .js-step-trigger-final').addClass('visually-hidden');
+      $('.js-step-trigger-next').removeClass('visually-hidden');
+    } else if (step != 'get-quote' || (step == 'get-quote' && $('.get-quote').hasClass('cleared'))) {
+      $('.quote-menu li').each(function(){
+        $(this).removeClass('active');
+      });
+      $('.quote-menu li[data-step=' + step + ']').addClass('active');
+
+      $('.form-section').each(function(){
+        $(this).addClass('hidden');
+      });
+
+      if (step == 'get-quote' && $('.get-quote').hasClass('cleared')) {
+        $('.js-step-trigger-back, .js-step-trigger-final').removeClass('visually-hidden');
+        $('.js-step-trigger-next').addClass('visually-hidden');
+      } else {
+        $('.js-step-trigger-back, .js-step-trigger-next').removeClass('visually-hidden');
+        $('.js-step-trigger-final').addClass('visually-hidden');
+      }
+
+      $('.form-section[data-step=' + step + ']').removeClass('hidden');
+    } else if (step == 'get-quote' && !$('.get-quote').hasClass('cleared')) {
+      alert('Please review to be sure you have made all selections!');
+    } else {
+      $('.js-step-trigger-back, .js-step-trigger-next').removeClass('visually-hidden');
+      $('.js-step-trigger-final').addClass('visually-hidden');
+    }
+  }
+
+  function validateSection(step) {
+    var complete_count = 0;
+    var section = $('.form-section[data-step="' + step + '"]');
+
+    switch(step) {
+      case 'garment':
+        var garment = document.forms["quote-form"]["garment"].value;
+        var color = document.forms["quote-form"]["garment_color"].value;
+        if (garment == '' || color == '') {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('incomplete');
+        } else {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('complete');
+        }
+        break;
+      case 'art':
+        var front_art = document.forms["quote-form"]["front_art"].value;
+        var back_art = document.forms["quote-form"]["back_art"].value;
+        var sleeve_art = document.forms["quote-form"]["sleeve_art"].value;
+        var front_text = document.forms["quote-form"]["front_text"].value;
+        var back_text = document.forms["quote-form"]["back_text"].value;
+        var sleeve_text = document.forms["quote-form"]["sleeve_text"].value;
+        if (front_art == '' && back_art == '' && sleeve_art == '' && front_text == '' && back_text == '' && sleeve_text == '') {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('incomplete');
+        } else {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('complete');
+        }
+        break;
+      case 'quantity':
+        var quantity = document.forms["quote-form"]["quantity"].value;
+        if (quantity == '') {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('incomplete');
+        } else {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('complete');
+        }
+        break;
+      case 'date':
+        var deadline = document.forms["quote-form"]["deadline"].value;
+        if (deadline == '') {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('incomplete');
+        } else {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('complete');
+        }
+        break;
+      case 'get-quote':
+        var email = document.forms["quote-form"]["email"].value;
+        if (email == '') {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('incomplete');
+        } else {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('complete');
+        }
+        break;
+    }
+  }
+
+  function isDone(step) {
+    var step_number = $('.quote-menu li').length - 1;
+    var complete_number = 0;
+
+    switch(step) {
+      case 'garment':
+        var garment = document.forms["quote-form"]["garment"].value;
+        var color = document.forms["quote-form"]["garment_color"].value;
+        if (garment != '' && color != '') {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('complete');
+        }
+        break;
+      case 'art':
+        var front_art = document.forms["quote-form"]["front_art"].value;
+        var back_art = document.forms["quote-form"]["back_art"].value;
+        var sleeve_art = document.forms["quote-form"]["sleeve_art"].value;
+        var front_text = document.forms["quote-form"]["front_text"].value;
+        var back_text = document.forms["quote-form"]["back_text"].value;
+        var sleeve_text = document.forms["quote-form"]["sleeve_text"].value;
+        if (front_art != '' || back_art != '' || sleeve_art != '' || front_text != '' || back_text != '' || sleeve_text != '') {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('complete');
+        }
+        break;
+      case 'quantity':
+        var quantity = document.forms["quote-form"]["quantity"].value;
+        if (quantity != '') {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('complete');
+        }
+        break;
+      case 'date':
+        var deadline = document.forms["quote-form"]["deadline"].value;
+        if (deadline != '') {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('complete');
+        }
+        break;
+      case 'get-quote':
+        var email = document.forms["quote-form"]["email"].value;
+        if (email != '' && validEmail(email)) {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('complete').removeClass('incomplete');
+        } else {
+          $('.quote-menu').find('[data-step=' + step + ']').addClass('incomplete').removeClass('complete');
+        }
+        break;
+    }
+
+    $('.quote-menu li').each(function(){
+      if ( $(this).hasClass('complete') ) {
+        complete_number++;
+      }
+    });
+
+    if (step_number == complete_number) {
+      $('.quote-menu').find('[data-step=get-quote]').addClass('cleared');
+    }
+  }
+
+  function validEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  }
+
+  $(document).ready(function(){
+    init();
+    formListener();
+  });
+</script>
